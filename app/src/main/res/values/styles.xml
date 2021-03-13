@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Widget.IniEncrypt.OutlinedButton" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="cornerRadius">20dp</item>
+        <item name="android:textColor">?colorPrimary</item>
+        <item name="elevation">10dp</item>
+    </style>
+
+    <style name="Widget.IniEncrypt.MaterialTextView" parent="Theme.IniEncrypt">
+        <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
+        <item name="android:textColor">?attr/colorPrimaryVariant</item>
+    </style>
+
+    <style name="Widget.IniEncrypt.TextInputEditText" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/rect_bg</item>
+        <item name="android:layout_margin">@dimen/margin</item>
+    </style>
+
+    <style name="Widget.IniEncrypt.MaterialButton" parent="Theme.IniEncrypt">
+        <item name="android:colorForeground">?colorPrimaryVariant</item>
+    </style>
+</resources>

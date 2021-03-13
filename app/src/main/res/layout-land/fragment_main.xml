@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.smatworld.iniencrypt.models.FileData" />
+
+        <variable
+            name="fileData"
+            type="FileData" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainFragment">
+
+        <View
+            android:id="@+id/vertical_separator"
+            android:layout_width="@dimen/line_width"
+            android:layout_height="0dp"
+            android:background="?attr/colorPrimaryDark"
+            app:layout_constraintBottom_toTopOf="@id/top_horizontal_barrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/asymmetric_tv"
+            style="@style/Widget.IniEncrypt.MaterialTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/app_padding"
+            android:text="Asymmetric"
+            app:layout_constraintBottom_toTopOf="@id/barrier_top"
+            app:layout_constraintEnd_toStartOf="@id/asymmetric_chip_group"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/asymmetric_chip_group"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin"
+            android:padding="@dimen/padding"
+            app:layout_constraintBottom_toBottomOf="@id/asymmetric_tv"
+            app:layout_constraintEnd_toStartOf="@id/vertical_separator"
+            app:layout_constraintStart_toEndOf="@id/asymmetric_tv"
+            app:layout_constraintTop_toTopOf="@id/asymmetric_tv"
+            app:singleLine="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="RSA"
+                app:chipIcon="@drawable/ic_baseline_security_24" />
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="El Gamal"
+                app:chipIcon="@drawable/ic_baseline_security_24" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="end"
+            app:constraint_referenced_ids="decrypt_button, encrypt_button, selected_encrypt_button" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="asymmetric_chip_group, asymmetric_tv, symmetric_chip_group, symmetric_tv" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/symmetric_tv"
+            style="@style/Widget.IniEncrypt.MaterialTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:text="Symmetric"
+            app:layout_constraintBottom_toTopOf="@id/barrier_top"
+            app:layout_constraintEnd_toStartOf="@id/symmetric_chip_group"
+            app:layout_constraintHorizontal_chainStyle="spread_inside"
+            app:layout_constraintStart_toEndOf="@id/vertical_separator"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/symmetric_chip_group"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/app_padding"
+            android:padding="@dimen/padding"
+            app:layout_constraintBottom_toBottomOf="@id/symmetric_tv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/symmetric_tv"
+            app:layout_constraintTop_toTopOf="@id/symmetric_tv"
+            app:singleLine="true"
+            app:singleSelection="true">
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="AES"
+                app:chipIcon="@drawable/ic_baseline_security_24" />
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checkable="true"
+                android:text="3DES"
+                app:chipIcon="@drawable/ic_baseline_security_24" />
+        </com.google.android.material.chip.ChipGroup>
+
+        <View
+            android:id="@+id/top_horizontal_barrier"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/line_width"
+            android:background="?attr/colorPrimaryDark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/barrier_top" />
+
+        <View
+            android:id="@+id/vertical_barrier"
+            android:layout_width="@dimen/line_width"
+            android:layout_height="0dp"
+            android:layout_marginStart="@dimen/app_padding"
+            android:background="?attr/colorPrimaryDark"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/barrier_start"
+            app:layout_constraintTop_toBottomOf="@id/top_horizontal_barrier" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/selected_encrypt_button"
+            style="@style/Widget.IniEncrypt.OutlinedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/app_padding"
+            android:drawableEnd="@drawable/ic_encryption_blue"
+            android:text="RSA"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/top_horizontal_barrier" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/encrypt_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/app_padding"
+            android:drawableTop="@drawable/ic_encryption"
+            android:text="encrypt"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/selected_encrypt_button" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/decrypt_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/app_padding"
+            android:drawableTop="@drawable/ic_no_encryption"
+            android:text="decrypt"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/encrypt_button" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/file_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:layout_marginTop="@dimen/app_padding"
+            android:text="File"
+            app:layout_constraintStart_toEndOf="@id/vertical_barrier"
+            app:layout_constraintTop_toBottomOf="@id/top_horizontal_barrier" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/file_name_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:background="@drawable/rect_bg"
+            android:ellipsize="middle"
+            android:padding="@dimen/margin"
+            android:text="@{fileData.hasData ? fileData.fileName : `File Name`}"
+            app:layout_constraintBottom_toBottomOf="@id/file_tv"
+            app:layout_constraintStart_toEndOf="@id/file_tv"
+            app:layout_constraintTop_toTopOf="@id/file_tv"
+            tools:text="Text File Name" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/choose_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/app_padding"
+            android:drawableEnd="@drawable/upload"
+            android:text="Choose File"
+            app:layout_constraintBottom_toBottomOf="@id/file_name_tv"
+            app:layout_constraintStart_toEndOf="@id/file_name_tv"
+            app:layout_constraintTop_toTopOf="@id/file_name_tv" />
+
+
+        <com.google.android.material.textview.MaterialTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/app_padding"
+            android:text="Key: Peaceful worker and doer"
+            android:textAppearance="?attr/textAppearanceCaption"
+            app:layout_constraintBottom_toBottomOf="@id/choose_button"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/choose_button" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/file_size_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin"
+            android:textAppearance="?attr/textAppearanceCaption"
+            app:file_size="@{fileData.fileSize}"
+            app:layout_constraintStart_toEndOf="@id/vertical_barrier"
+            app:layout_constraintTop_toBottomOf="@id/choose_button"
+            tools:text="File Size: 2045MB" />
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@id/bottom_horizontal_barrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/vertical_barrier"
+            app:layout_constraintTop_toBottomOf="@id/file_size_text_view">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/t1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/app_padding"
+                    android:drawableStart="@drawable/file_presentation_box"
+                    android:gravity="center_vertical"
+                    android:text="Preview"
+                    app:layout_constraintBottom_toTopOf="@id/preview_tv"
+                    app:layout_constraintStart_toStartOf="@id/preview_tv"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/preview_tv"
+                    style="@style/Widget.IniEncrypt.TextInputEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/app_padding"
+                    android:maxLines="3"
+                    android:padding="@dimen/padding"
+                    android:text="@string/dummy"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintBottom_toBottomOf="@id/preview_image"
+                    app:layout_constraintEnd_toStartOf="@id/preview_image"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/preview_image" />
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/preview_image"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_marginEnd="@dimen/padding"
+                    android:src="@drawable/file_key"
+                    app:civ_border_color="#FF000000"
+                    app:civ_border_width="2dp"
+                    app:image_bitmap="@{fileData.bitmap}"
+                    app:layout_constraintBottom_toTopOf="@id/t2"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/preview_tv"
+                    app:layout_constraintTop_toBottomOf="@id/t1" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/t2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin"
+                    android:drawableStart="@drawable/file_key"
+                    android:gravity="center_vertical"
+                    android:text="Decrypted File"
+                    app:layout_constraintBottom_toTopOf="@id/plain_tv"
+                    app:layout_constraintStart_toStartOf="@id/plain_tv"
+                    app:layout_constraintTop_toBottomOf="@id/preview_image" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/plain_tv"
+                    style="@style/Widget.IniEncrypt.TextInputEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="middle"
+                    android:maxLines="3"
+                    android:padding="@dimen/padding"
+                    android:text="@string/dummy"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/encrypted_tv"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/t2" />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/t3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/margin"
+                    android:drawableStart="@drawable/file_lock"
+                    android:gravity="center_vertical"
+                    android:text="Encrypted File"
+                    app:layout_constraintTop_toBottomOf="@id/preview_image"
+                    app:layout_constraintBottom_toTopOf="@id/encrypted_tv"
+                    app:layout_constraintStart_toStartOf="@id/encrypted_tv" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/encrypted_tv"
+                    style="@style/Widget.IniEncrypt.TextInputEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/app_padding"
+                    android:ellipsize="middle"
+                    android:maxLines="3"
+                    android:padding="@dimen/padding"
+                    android:scrollHorizontally="true"
+                    android:text="@string/dummy"
+                    android:textAppearance="?attr/textAppearanceBody2"
+                    app:layout_constraintTop_toBottomOf="@id/t3"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/plain_tv" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+
+        <View
+            android:id="@+id/bottom_horizontal_barrier"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/line_width"
+            android:layout_marginTop="@dimen/margin"
+            android:background="?attr/colorPrimaryDark"
+            app:layout_constraintBottom_toTopOf="@id/barrier_bottom"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/vertical_barrier" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="top"
+            app:constraint_referenced_ids="decryption_time_tv, encryption_time_tv" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/encryption_time_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding"
+            android:text="Encryption Time: 0.567ms"
+            android:textAppearance="?attr/textAppearanceButton"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/decryption_time_tv"
+            app:layout_constraintStart_toEndOf="@id/vertical_barrier"
+            app:layout_constraintTop_toBottomOf="@id/barrier_bottom" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/decryption_time_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/app_padding"
+            android:padding="@dimen/padding"
+            android:text="Decryption Time: 1.267ms"
+            android:textAppearance="?attr/textAppearanceButton"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/encryption_time_tv"
+            app:layout_constraintTop_toBottomOf="@id/barrier_bottom" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
