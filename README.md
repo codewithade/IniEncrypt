@@ -2,7 +2,7 @@
 Testing the efficiency of different symmetric and asymmetric encryption algorithms when encrypting text and images.
 
 Algorithms being considered include:
-1. Diffie-Helman
+1. Diffie-Hellman
 2. RSA
 3. 3DES
 4. AES
