@@ -64,7 +64,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"
-                android:text="El Gamal"
+                android:text="@string/diffie"
                 app:chipIcon="@drawable/ic_baseline_security_24" />
         </com.google.android.material.chip.ChipGroup>
 
@@ -210,25 +210,38 @@
 
 
         <com.google.android.material.textview.MaterialTextView
-            android:layout_width="wrap_content"
+            android:id="@+id/key_tv"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/app_padding"
             android:text="Key: Peaceful worker and doer"
             android:textAppearance="?attr/textAppearanceCaption"
-            app:layout_constraintBottom_toBottomOf="@id/choose_button"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/choose_button" />
+            app:layout_constraintStart_toEndOf="@id/file_size_text_view"
+            app:layout_constraintTop_toTopOf="@id/file_size_text_view" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/file_size_text_view"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
+            android:layout_marginTop="@dimen/marginTop"
             android:textAppearance="?attr/textAppearanceCaption"
             app:file_size="@{fileData.fileSize}"
+            app:layout_constraintEnd_toStartOf="@id/key_tv"
             app:layout_constraintStart_toEndOf="@id/vertical_barrier"
             app:layout_constraintTop_toBottomOf="@id/choose_button"
             tools:text="File Size: 2045MB" />
+
+        <View
+            android:id="@+id/middle_horizontal_barrier"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/line_width"
+            android:layout_marginTop="@dimen/margin"
+            android:background="?attr/colorPrimaryDark"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/vertical_barrier"
+            app:layout_constraintTop_toBottomOf="@id/key_tv" />
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/scrollView"
@@ -237,7 +250,7 @@
             app:layout_constraintBottom_toTopOf="@id/bottom_horizontal_barrier"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/vertical_barrier"
-            app:layout_constraintTop_toBottomOf="@id/file_size_text_view">
+            app:layout_constraintTop_toBottomOf="@id/middle_horizontal_barrier">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
@@ -319,9 +332,9 @@
                     android:drawableStart="@drawable/file_lock"
                     android:gravity="center_vertical"
                     android:text="Encrypted File"
-                    app:layout_constraintTop_toBottomOf="@id/preview_image"
                     app:layout_constraintBottom_toTopOf="@id/encrypted_tv"
-                    app:layout_constraintStart_toStartOf="@id/encrypted_tv" />
+                    app:layout_constraintStart_toStartOf="@id/encrypted_tv"
+                    app:layout_constraintTop_toBottomOf="@id/preview_image" />
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/encrypted_tv"
@@ -335,10 +348,10 @@
                     android:scrollHorizontally="true"
                     android:text="@string/dummy"
                     android:textAppearance="?attr/textAppearanceBody2"
-                    app:layout_constraintTop_toBottomOf="@id/t3"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/plain_tv" />
+                    app:layout_constraintStart_toEndOf="@id/plain_tv"
+                    app:layout_constraintTop_toBottomOf="@id/t3" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

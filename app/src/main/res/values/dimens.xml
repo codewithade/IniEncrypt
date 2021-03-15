@@ -5,4 +5,5 @@
     <dimen name="padding">8dp</dimen>
     <dimen name="line_width">1dp</dimen>
     <dimen name="margin_top">32dp</dimen>
+    <dimen name="marginTop">4dp</dimen>
 </resources>
