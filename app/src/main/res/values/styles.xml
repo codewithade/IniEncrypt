@@ -8,7 +8,7 @@
     </style>
 
     <style name="Widget.IniEncrypt.MaterialTextView" parent="Theme.IniEncrypt">
-        <item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
+        <item name="android:textAppearance">?attr/textAppearanceButton</item>
         <item name="android:textColor">?attr/colorPrimaryVariant</item>
     </style>
 
@@ -19,5 +19,9 @@
 
     <style name="Widget.IniEncrypt.MaterialButton" parent="Theme.IniEncrypt">
         <item name="android:colorForeground">?colorPrimaryVariant</item>
+    </style>
+
+    <style name="Widget.IniEncrypt.TextInputLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
     </style>
 </resources>

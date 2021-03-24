@@ -3,20 +3,30 @@ package com.smatworld.iniencrypt.models;
 import android.graphics.Bitmap;
 
 import java.io.File;
+import java.io.InputStream;
 
 public class FileData {
     private Bitmap mBitmap;
     private File mFile;
     private String mFileName;
     private long mFileSize;
-    private boolean mHasData;
+    private boolean mIsStreamAvailable;
+    private InputStream encryptedStream;
+    private InputStream decryptedStream;
+    private long encryptionTime;
+    private long decryptionTime;
+    private String key;
 
-    public FileData(Bitmap bitmap, File file, String fileName, long fileSize, boolean hasData) {
+    // not used
+    private String mPreviewData;
+    private byte[] decryptedImage;
+
+    public FileData(Bitmap bitmap, File file, String fileName, long fileSize, String previewData) {
         mBitmap = bitmap;
         mFile = file;
         mFileName = fileName;
         mFileSize = fileSize;
-        mHasData = hasData;
+        mPreviewData = previewData;
     }
 
     public Bitmap getBitmap() {
@@ -43,12 +53,12 @@ public class FileData {
         return mFileName;
     }
 
-    public void setHasData(boolean hasData) {
-        mHasData = hasData;
+    public void setStreamAvailable(boolean streamAvailable) {
+        mIsStreamAvailable = streamAvailable;
     }
 
-    public boolean isHasData() {
-        return mHasData;
+    public boolean isStreamAvailable() {
+        return mIsStreamAvailable;
     }
 
     public long getFileSize() {
@@ -57,5 +67,61 @@ public class FileData {
 
     public void setFileSize(long fileSize) {
         mFileSize = fileSize;
+    }
+
+    public long getEncryptionTime() {
+        return encryptionTime;
+    }
+
+    public void setEncryptionTime(long encryptionTime) {
+        this.encryptionTime = encryptionTime;
+    }
+
+    public long getDecryptionTime() {
+        return decryptionTime;
+    }
+
+    public void setDecryptionTime(long decryptionTime) {
+        this.decryptionTime = decryptionTime;
+    }
+
+    public String getPreviewData() {
+        return mPreviewData;
+    }
+
+    public void setPreviewData(String previewData) {
+        mPreviewData = previewData;
+    }
+
+    public byte[] getDecryptedImage() {
+        return decryptedImage;
+    }
+
+    public void setDecryptedImage(byte[] decryptedImage) {
+        this.decryptedImage = decryptedImage;
+    }
+
+    public InputStream getEncryptedStream() {
+        return encryptedStream;
+    }
+
+    public void setEncryptedStream(InputStream encryptedStream) {
+        this.encryptedStream = encryptedStream;
+    }
+
+    public InputStream getDecryptedStream() {
+        return decryptedStream;
+    }
+
+    public void setDecryptedStream(InputStream decryptedStream) {
+        this.decryptedStream = decryptedStream;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 }

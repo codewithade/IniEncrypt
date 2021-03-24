@@ -11,7 +11,28 @@
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="dummy">In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document In publishing and graphic design, Lorem ipsum is a placeholder text commonly used to demonstrate the visual form of a document or a typeface without relying on meaningful content.</string>
+    <string name="dummy">aL87RqlLWZWnBkLJtmq/zem2bcvrcAEILt9sH6QVk8OIHEspTQ2dBwU/6F2el9vxrqNvuwZ8fsBHoi1FFi0YrbfI5foaxpR5HKfoSvJ34N1WTrP5Mye76kdc8Go/UvF//6SdBwU/6F2el9vxrqNvuwZ8fsBHoi1FFi0YrbfI5foaxpR5HKfoSvJ34N1WTrP5Mye76kdc8Go/UvF//6Sh/YGIGY5y7bzkoE1iIyF</string>
     <string name="bytes">0 byte(s)</string>
     <string name="diffie">DH</string>
+    <string name="file_name">File Name</string>
+    <string name="no_app_found">Oops. No suitable application found to process your request.</string>
+    <string name="rsa">RSA</string>
+    <string name="aes">AES</string>
+    <string name="_3des">3DES</string>
+    <string name="key">Key: Peaceful worker and doer Peaceful worker and doer Peaceful worker and doer Peaceful worker and doer Peaceful worker and doerPeaceful worker and doerPeaceful worker and doer</string>
+    <string name="encrypt">encrypt</string>
+    <string name="decrypt">decrypt</string>
+    <string name="file">File</string>
+    <string name="choose_file">Choose File</string>
+    <string name="asymmetric">Asymmetric</string>
+    <string name="symmetric">Symmetric</string>
+    <string name="preview">Preview</string>
+    <string name="decrypted_file">Decrypted File</string>
+    <string name="encrypted_file">Encrypted File</string>
+    <string name="encryption_time">Encryption Time: %s(ns)</string>
+    <string name="decryption_time">Decryption Time: %s(ns)</string>
+    <string name="refresh">Refresh</string>
+    <string name="refresh_page_dec">refresh page</string>
+    <string name="key_text_view">Key:</string>
+    <string name="hint_key_length">Enter Key (%d characters)</string>
 </resources>

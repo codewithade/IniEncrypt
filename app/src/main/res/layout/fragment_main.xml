@@ -5,11 +5,13 @@
 
     <data>
 
-        <import type="com.smatworld.iniencrypt.models.FileData" />
+        <import type="com.smatworld.iniencrypt.presentation.FileViewModel" />
+
+        <import type="android.view.View" />
 
         <variable
-            name="fileData"
-            type="FileData" />
+            name="viewModel"
+            type="FileViewModel" />
 
     </data>
 
@@ -34,7 +36,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/app_padding"
-            android:text="Asymmetric"
+            android:layout_marginTop="@dimen/margin"
+            android:text="@string/asymmetric"
             app:layout_constraintBottom_toTopOf="@id/asymmetric_chip_group"
             app:layout_constraintEnd_toEndOf="@id/asymmetric_chip_group"
             app:layout_constraintStart_toStartOf="@id/asymmetric_chip_group"
@@ -54,13 +57,15 @@
             app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
+                android:id="@+id/rsa_chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"
-                android:text="RSA"
+                android:text="@string/rsa"
                 app:chipIcon="@drawable/ic_baseline_security_24" />
 
             <com.google.android.material.chip.Chip
+                android:id="@+id/dh_chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"
@@ -82,7 +87,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/margin"
-            android:text="Symmetric"
+            android:layout_marginTop="@dimen/margin"
+            android:text="@string/symmetric"
             app:layout_constraintBottom_toTopOf="@id/symmetric_chip_group"
             app:layout_constraintEnd_toEndOf="@id/symmetric_chip_group"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
@@ -102,17 +108,19 @@
             app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
+                android:id="@+id/aes_chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"
-                android:text="AES"
+                android:text="@string/aes"
                 app:chipIcon="@drawable/ic_baseline_security_24" />
 
             <com.google.android.material.chip.Chip
+                android:id="@+id/des_chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"
-                android:text="3DES"
+                android:text="@string/_3des"
                 app:chipIcon="@drawable/ic_baseline_security_24" />
         </com.google.android.material.chip.ChipGroup>
 
@@ -131,11 +139,14 @@
             style="@style/Widget.IniEncrypt.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/app_padding"
+            android:layout_marginStart="@dimen/margin"
             android:drawableEnd="@drawable/ic_encryption_blue"
-            android:text="RSA"
+            android:text="@{viewModel.algorithm.algorithm}"
+            android:visibility="@{viewModel.algorithmSelected ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="@string/rsa"
+            tools:visibility="visible" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/encrypt_button"
@@ -144,7 +155,10 @@
             android:layout_marginStart="@dimen/margin"
             android:layout_marginEnd="@dimen/margin"
             android:drawableEnd="@drawable/ic_encryption"
-            android:text="encrypt"
+            android:ellipsize="end"
+            android:enabled="@{viewModel.fileData.file != null}"
+            android:singleLine="true"
+            android:text="@string/encrypt"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/decrypt_button"
             app:layout_constraintStart_toEndOf="@id/selected_encrypt_button" />
@@ -153,12 +167,27 @@
             android:id="@+id/decrypt_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/app_padding"
+            android:layout_marginEnd="@dimen/margin"
             android:drawableEnd="@drawable/ic_no_encryption"
-            android:text="decrypt"
+            android:ellipsize="end"
+            android:enabled="@{viewModel.fileData.streamAvailable}"
+            android:singleLine="true"
+            android:text="@string/decrypt"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/refresh_button"
+            app:layout_constraintStart_toEndOf="@id/encrypt_button" />
+
+        <ImageButton
+            android:id="@+id/refresh_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/refresh_page_dec"
+            android:src="@drawable/ic_baseline_restore_page_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/encrypt_button" />
+            app:layout_constraintTop_toTopOf="@id/encrypt_button" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/file_tv"
@@ -166,7 +195,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/app_padding"
             android:layout_marginTop="@dimen/margin_top"
-            android:text="File"
+            android:text="@string/file"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/top_horizontal_barrier" />
 
@@ -177,13 +206,15 @@
             android:layout_marginStart="@dimen/margin"
             android:background="@drawable/rect_bg"
             android:ellipsize="middle"
+            android:hint="@string/file_name"
             android:padding="@dimen/margin"
-            android:text="@{fileData.hasData ? fileData.fileName : `File Name`}"
+            android:text="@{viewModel.fileData.file != null ? viewModel.fileData.fileName : ``}"
+            android:textAppearance="?attr/textAppearanceBody2"
             app:layout_constraintBottom_toBottomOf="@id/file_tv"
             app:layout_constraintEnd_toStartOf="@id/choose_button"
             app:layout_constraintStart_toEndOf="@id/file_tv"
             app:layout_constraintTop_toTopOf="@id/file_tv"
-            tools:text="File Name" />
+            tools:text="@string/file_name" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/choose_button"
@@ -192,7 +223,8 @@
             android:layout_marginStart="@dimen/app_padding"
             android:layout_marginEnd="@dimen/app_padding"
             android:drawableEnd="@drawable/upload"
-            android:text="Choose File"
+            android:enabled="@{viewModel.algorithmSelected}"
+            android:text="@string/choose_file"
             app:layout_constraintBottom_toBottomOf="@id/file_name_tv"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/file_name_tv"
@@ -203,11 +235,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/app_padding"
-            android:text="Key: Peaceful worker and doer"
+            android:ellipsize="end"
+            android:maxLines="3"
+            android:text="@{viewModel.fileData.key != null ? viewModel.fileData.key : ``}"
             android:textAppearance="?attr/textAppearanceCaption"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/file_size_text_view"
-            app:layout_constraintTop_toTopOf="@id/file_size_text_view" />
+            app:layout_constraintTop_toTopOf="@id/file_size_text_view"
+            tools:text="@string/key" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/file_size_text_view"
@@ -216,7 +251,7 @@
             android:layout_marginStart="@dimen/app_padding"
             android:layout_marginTop="@dimen/marginTop"
             android:textAppearance="?attr/textAppearanceCaption"
-            app:file_size="@{fileData.fileSize}"
+            app:file_size="@{viewModel.fileData.fileSize}"
             app:layout_constraintEnd_toStartOf="@id/key_tv"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/choose_button"
@@ -253,36 +288,38 @@
                     android:layout_marginTop="@dimen/margin_top"
                     android:drawableStart="@drawable/file_presentation_box"
                     android:gravity="center_vertical"
-                    android:text="Preview"
+                    android:text="@string/preview"
                     app:layout_constraintStart_toStartOf="@id/preview_tv"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/preview_tv"
                     style="@style/Widget.IniEncrypt.TextInputEditText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/app_padding"
                     android:layout_marginEnd="@dimen/app_padding"
-                    android:gravity="center"
-                    android:maxLines="3"
+                    android:hint="@string/preview"
+                    android:maxLines="6"
                     android:padding="@dimen/padding"
-                    android:text="@string/dummy"
+                    android:text="@{viewModel.fileData.previewData != null ? viewModel.fileData.previewData : `Nothing to preview`}"
                     android:textAppearance="?attr/textAppearanceBody2"
                     app:layout_constraintBottom_toBottomOf="@id/preview_image"
                     app:layout_constraintEnd_toStartOf="@id/preview_image"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/preview_image" />
+                    app:layout_constraintTop_toTopOf="@id/preview_image"
+                    tools:text="@string/dummy" />
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/preview_image"
                     android:layout_width="96dp"
                     android:layout_height="96dp"
+                    android:layout_marginTop="@dimen/app_padding"
                     android:layout_marginEnd="@dimen/padding"
                     android:src="@drawable/file_key"
                     app:civ_border_color="#FF000000"
                     app:civ_border_width="2dp"
-                    app:image_bitmap="@{fileData.bitmap}"
+                    app:image_bitmap="@{viewModel.fileData.bitmap}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/preview_tv"
                     app:layout_constraintTop_toBottomOf="@id/t1" />
@@ -291,14 +328,14 @@
                     android:id="@+id/t2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/app_padding"
+                    android:layout_marginTop="@dimen/margin_top"
                     android:drawableStart="@drawable/file_key"
                     android:gravity="center_vertical"
-                    android:text="Decrypted File"
+                    android:text="@string/decrypted_file"
                     app:layout_constraintStart_toStartOf="@id/plain_tv"
                     app:layout_constraintTop_toBottomOf="@id/preview_image" />
 
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/plain_tv"
                     style="@style/Widget.IniEncrypt.TextInputEditText"
                     android:layout_width="0dp"
@@ -306,26 +343,28 @@
                     android:layout_marginStart="@dimen/app_padding"
                     android:layout_marginEnd="@dimen/app_padding"
                     android:ellipsize="middle"
-                    android:maxLines="3"
+                    android:hint="@string/decrypted_file"
+                    android:maxLines="6"
                     android:padding="@dimen/padding"
-                    android:text="@string/dummy"
                     android:textAppearance="?attr/textAppearanceBody2"
+                    app:data_stream="@{viewModel.fileData.decryptedStream}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/t2" />
+                    app:layout_constraintTop_toBottomOf="@id/t2"
+                    tools:text="@string/dummy" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/t3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/app_padding"
+                    android:layout_marginTop="@dimen/margin_top"
                     android:drawableStart="@drawable/file_lock"
                     android:gravity="center_vertical"
-                    android:text="Encrypted File"
+                    android:text="@string/encrypted_file"
                     app:layout_constraintStart_toStartOf="@id/encrypted_tv"
                     app:layout_constraintTop_toBottomOf="@id/plain_tv" />
 
-                <com.google.android.material.textfield.TextInputEditText
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/encrypted_tv"
                     style="@style/Widget.IniEncrypt.TextInputEditText"
                     android:layout_width="0dp"
@@ -333,14 +372,16 @@
                     android:layout_marginStart="@dimen/app_padding"
                     android:layout_marginEnd="@dimen/app_padding"
                     android:ellipsize="middle"
-                    android:maxLines="3"
+                    android:hint="@string/encrypted_file"
+                    android:maxLines="6"
                     android:padding="@dimen/padding"
                     android:scrollHorizontally="true"
-                    android:text="@string/dummy"
                     android:textAppearance="?attr/textAppearanceBody2"
+                    app:data_stream="@{viewModel.fileData.encryptedStream}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/t3" />
+                    app:layout_constraintTop_toBottomOf="@id/t3"
+                    tools:text="@string/dummy" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.core.widget.NestedScrollView>
@@ -364,11 +405,12 @@
             android:layout_marginStart="@dimen/app_padding"
             android:gravity="center"
             android:padding="@dimen/padding"
-            android:text="Encryption Time: 0.567ms"
             android:textAppearance="?attr/textAppearanceButton"
+            app:encryption_time="@{viewModel.fileData.encryptionTime}"
             app:layout_constraintBottom_toTopOf="@id/bottom_horizontal_barrier"
             app:layout_constraintEnd_toStartOf="@id/decryption_time_tv"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="@string/encryption_time" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/decryption_time_tv"
@@ -377,42 +419,12 @@
             android:layout_marginEnd="@dimen/app_padding"
             android:gravity="center"
             android:padding="@dimen/padding"
-            android:text="Decryption Time: 1.267ms"
             android:textAppearance="?attr/textAppearanceButton"
+            app:decryption_time="@{viewModel.fileData.decryptionTime}"
             app:layout_constraintBottom_toTopOf="@id/bottom_horizontal_barrier"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/encryption_time_tv" />
-
-
-        <!--<ImageView
-            android:id="@+id/icon_1"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:src="@drawable/circle_bg"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/icon_2"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/icon_2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:src="@drawable/circle_bg"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/icon_3"
-            app:layout_constraintStart_toEndOf="@id/icon_1"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/icon_3"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:src="@drawable/circle_bg"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/icon_2"
-            app:layout_constraintTop_toTopOf="parent" />-->
+            app:layout_constraintStart_toEndOf="@id/encryption_time_tv"
+            tools:text="@string/decryption_time" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
