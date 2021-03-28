@@ -308,10 +308,9 @@
                     android:padding="@dimen/padding"
                     android:text="@{viewModel.fileData.previewData != null ? viewModel.fileData.previewData : `Nothing to preview`}"
                     android:textAppearance="?attr/textAppearanceBody2"
-                    app:layout_constraintBottom_toBottomOf="@id/preview_image"
                     app:layout_constraintEnd_toStartOf="@id/preview_image"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/preview_image"
+                    app:layout_constraintTop_toBottomOf="@id/t1"
                     tools:text="@string/dummy" />
 
                 <de.hdodenhof.circleimageview.CircleImageView
@@ -323,10 +322,10 @@
                     app:civ_border_color="#FF000000"
                     app:civ_border_width="2dp"
                     app:image_bitmap="@{viewModel.fileData.bitmap}"
-                    app:layout_constraintBottom_toTopOf="@id/t2"
+                    app:layout_constraintBottom_toBottomOf="@id/preview_tv"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/preview_tv"
-                    app:layout_constraintTop_toBottomOf="@id/t1" />
+                    app:layout_constraintTop_toTopOf="@id/preview_tv" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/t2"
@@ -338,7 +337,7 @@
                     android:text="@string/decrypted_file"
                     app:layout_constraintBottom_toTopOf="@id/plain_tv"
                     app:layout_constraintStart_toStartOf="@id/plain_tv"
-                    app:layout_constraintTop_toBottomOf="@id/preview_image" />
+                    app:layout_constraintTop_toBottomOf="@id/preview_tv" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/plain_tv"
@@ -367,7 +366,7 @@
                     android:text="@string/encrypted_file"
                     app:layout_constraintBottom_toTopOf="@id/encrypted_tv"
                     app:layout_constraintStart_toStartOf="@id/encrypted_tv"
-                    app:layout_constraintTop_toBottomOf="@id/preview_image" />
+                    app:layout_constraintTop_toBottomOf="@id/preview_tv" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/encrypted_tv"
