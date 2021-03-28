@@ -38,4 +38,8 @@
     <string name="key_hint_3des">Enter Key (%d or %d characters)</string>
     <string name="key_hint_rsa">Enter Key size in multiples of %d (max of %d)</string>
     <string name="key_hint_dh">Enter Key size in multiples of 64 (min: %d, max: %d)</string>
+    <string name="dialog_title">Reset workspace</string>
+    <string name="dialog_message">Are you sure you want to reset the workspace?</string>
+    <string name="dialog_no">No</string>
+    <string name="dialog_yes">Yes</string>
 </resources>

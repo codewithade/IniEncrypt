@@ -365,10 +365,10 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
     private void refreshWorkSpace() {
         new MaterialAlertDialogBuilder(requireContext())
-                .setTitle("Reset workspace")
-                .setMessage("Are you sure you want to reset the workspace?")
+                .setTitle(R.string.dialog_title)
+                .setMessage(R.string.dialog_message)
                 .setIcon(R.drawable.ic_baseline_warning_24)
-                .setPositiveButton("Yes", (dialog, which) -> {
+                .setPositiveButton(R.string.dialog_yes, (dialog, which) -> {
                     disableCryptographyButtons();
                     mBinding.chooseButton.setEnabled(false);
                     mBinding.previewTv.setText("");
@@ -384,7 +384,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                     mFileViewModel.setFileData(null);
                     mFileViewModel.setAlgorithm(null);
                 })
-                .setNegativeButton("No", (dialog, which) -> dialog.cancel())
+                .setNegativeButton(R.string.dialog_no, (dialog, which) -> dialog.cancel())
                 .show();
     }
 
@@ -482,7 +482,6 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         if (fileData == null) disableCryptographyButtons();
         else {
             mBinding.encryptButton.setEnabled(true);
-            // mBinding.decryptButton.setEnabled(fileData.getEncryptedStream() != null);
             mBinding.decryptButton.setEnabled(fileData.getEncryptedFile() != null);
         }
     }

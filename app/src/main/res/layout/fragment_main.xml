@@ -301,29 +301,28 @@
                     android:layout_marginStart="@dimen/app_padding"
                     android:layout_marginEnd="@dimen/app_padding"
                     android:hint="@string/preview"
-                    android:maxLines="6"
+                    android:maxLines="@integer/til_max_lines"
                     android:padding="@dimen/padding"
                     android:text="@{viewModel.fileData.previewData != null ? viewModel.fileData.previewData : `Nothing to preview`}"
                     android:textAppearance="?attr/textAppearanceBody2"
-                    app:layout_constraintBottom_toBottomOf="@id/preview_image"
                     app:layout_constraintEnd_toStartOf="@id/preview_image"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/preview_image"
+                    app:layout_constraintTop_toBottomOf="@id/t1"
                     tools:text="@string/dummy" />
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/preview_image"
                     android:layout_width="96dp"
                     android:layout_height="96dp"
-                    android:layout_marginTop="@dimen/app_padding"
                     android:layout_marginEnd="@dimen/padding"
                     android:src="@drawable/file_key"
                     app:civ_border_color="#FF000000"
                     app:civ_border_width="2dp"
                     app:image_bitmap="@{viewModel.fileData.bitmap}"
+                    app:layout_constraintBottom_toBottomOf="@id/preview_tv"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/preview_tv"
-                    app:layout_constraintTop_toBottomOf="@id/t1" />
+                    app:layout_constraintTop_toTopOf="@id/preview_tv" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/t2"
@@ -334,7 +333,7 @@
                     android:gravity="center_vertical"
                     android:text="@string/decrypted_file"
                     app:layout_constraintStart_toStartOf="@id/plain_tv"
-                    app:layout_constraintTop_toBottomOf="@id/preview_image" />
+                    app:layout_constraintTop_toBottomOf="@id/preview_tv" />
 
                 <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/plain_tv"
@@ -345,10 +344,10 @@
                     android:layout_marginEnd="@dimen/app_padding"
                     android:ellipsize="middle"
                     android:hint="@string/decrypted_file"
-                    android:maxLines="6"
+                    android:maxLines="@integer/til_max_lines"
                     android:padding="@dimen/padding"
-                    android:textAppearance="?attr/textAppearanceBody2"
                     android:text="@{viewModel.fileData.decryptedText}"
+                    android:textAppearance="?attr/textAppearanceBody2"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/t2"
@@ -374,11 +373,11 @@
                     android:layout_marginEnd="@dimen/app_padding"
                     android:ellipsize="middle"
                     android:hint="@string/encrypted_file"
-                    android:maxLines="6"
+                    android:maxLines="@integer/til_max_lines"
                     android:padding="@dimen/padding"
                     android:scrollHorizontally="true"
-                    android:textAppearance="?attr/textAppearanceBody2"
                     android:text="@{viewModel.fileData.encryptedFile}"
+                    android:textAppearance="?attr/textAppearanceBody2"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/t3"
