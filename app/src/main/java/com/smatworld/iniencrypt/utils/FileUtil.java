@@ -26,6 +26,9 @@ import java.nio.charset.StandardCharsets;
 
 import static com.smatworld.iniencrypt.utils.Constants.TAG;
 
+// https://developer.android.com/training/data-storage/app-specific
+// https://developer.android.com/guide/components/intents-filters
+// https://developer.android.com/guide/components/intents-common
 public class FileUtil {
 
     public static File getFileFromUri(Fragment fragment, Uri uri) {
