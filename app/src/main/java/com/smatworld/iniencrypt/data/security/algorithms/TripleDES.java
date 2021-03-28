@@ -32,6 +32,7 @@ public class TripleDES {
         stream2encrypt.read(stream2encryptArray);
 
         Cipher cipher = Cipher.getInstance(sTransformation);
+        // using cipher.getBlockSize() which is equivalent to 8 returns an error
         final IvParameterSpec iv = new IvParameterSpec(new byte[8]);
 
         cipher.init(Cipher.ENCRYPT_MODE, generateKey(), iv);

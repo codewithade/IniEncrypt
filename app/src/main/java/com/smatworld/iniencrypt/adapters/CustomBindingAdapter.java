@@ -1,6 +1,7 @@
 package com.smatworld.iniencrypt.adapters;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -23,6 +24,13 @@ public class CustomBindingAdapter {
     public static void bindImageBitmap(ImageView imageView, Bitmap bitmap) {
         if (bitmap != null) imageView.setImageBitmap(bitmap);
         else imageView.setImageResource(R.drawable.file_key);
+    }
+
+    @BindingAdapter("path_bitmap")
+    public static void bindImagePathBitmap(ImageView imageView, String imageFilePath){
+        if (!imageFilePath.isEmpty())
+            imageView.setImageBitmap(BitmapFactory.decodeFile(imageFilePath));
+        else imageView.setImageResource(R.drawable.file_key_outline);
     }
 
     @BindingAdapter("file_size")
@@ -50,10 +58,10 @@ public class CustomBindingAdapter {
 
     }
 
-    @BindingAdapter("data_stream")
+    /*@BindingAdapter("data_stream")
     public static void setDataStream(MaterialTextView textView, InputStream stream) {
         if (stream != null) textView.setText(DataUtil.getEncodedStream(stream));
         else textView.setText("");
-    }
+    }*/
 
 }

@@ -3,7 +3,6 @@ package com.smatworld.iniencrypt.models;
 import android.graphics.Bitmap;
 
 import java.io.File;
-import java.io.InputStream;
 
 public class FileData {
     private Bitmap mBitmap;
@@ -11,22 +10,25 @@ public class FileData {
     private String mFileName;
     private long mFileSize;
     private boolean mIsStreamAvailable;
-    private InputStream encryptedStream;
-    private InputStream decryptedStream;
     private long encryptionTime;
     private long decryptionTime;
     private String key;
+    private String mFileExtension;
+    private boolean mIsImage;
 
-    // not used
     private String mPreviewData;
-    private byte[] decryptedImage;
+    private String encryptedFile; // both text and image are converted to Base64 encoded texts
+    private String decryptedText;
+    private String decryptedImagePath;
 
-    public FileData(Bitmap bitmap, File file, String fileName, long fileSize, String previewData) {
+    public FileData(Bitmap bitmap, File file, String fileName, long fileSize, String fileExtension, String previewData, boolean isImage) {
         mBitmap = bitmap;
         mFile = file;
         mFileName = fileName;
         mFileSize = fileSize;
+        mFileExtension = fileExtension;
         mPreviewData = previewData;
+        mIsImage = isImage;
     }
 
     public Bitmap getBitmap() {
@@ -93,28 +95,12 @@ public class FileData {
         mPreviewData = previewData;
     }
 
-    public byte[] getDecryptedImage() {
-        return decryptedImage;
+    public String getDecryptedImagePath() {
+        return decryptedImagePath;
     }
 
-    public void setDecryptedImage(byte[] decryptedImage) {
-        this.decryptedImage = decryptedImage;
-    }
-
-    public InputStream getEncryptedStream() {
-        return encryptedStream;
-    }
-
-    public void setEncryptedStream(InputStream encryptedStream) {
-        this.encryptedStream = encryptedStream;
-    }
-
-    public InputStream getDecryptedStream() {
-        return decryptedStream;
-    }
-
-    public void setDecryptedStream(InputStream decryptedStream) {
-        this.decryptedStream = decryptedStream;
+    public void setDecryptedImagePath(String decryptedImagePath) {
+        this.decryptedImagePath = decryptedImagePath;
     }
 
     public String getKey() {
@@ -123,5 +109,37 @@ public class FileData {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public String getFileExtension() {
+        return mFileExtension;
+    }
+
+    public void setFileExtension(String fileExtension) {
+        mFileExtension = fileExtension;
+    }
+
+    public boolean isImage() {
+        return mIsImage;
+    }
+
+    public void setIsImage(boolean image) {
+        mIsImage = image;
+    }
+
+    public String getEncryptedFile() {
+        return encryptedFile;
+    }
+
+    public void setEncryptedFile(String encryptedFile) {
+        this.encryptedFile = encryptedFile;
+    }
+
+    public String getDecryptedText() {
+        return decryptedText;
+    }
+
+    public void setDecryptedText(String decryptedText) {
+        this.decryptedText = decryptedText;
     }
 }

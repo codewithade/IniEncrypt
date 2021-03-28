@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -11,12 +12,15 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.button.MaterialButton;
@@ -32,8 +36,10 @@ import com.smatworld.iniencrypt.di.AppContainer;
 import com.smatworld.iniencrypt.di.IniEncryptApp;
 import com.smatworld.iniencrypt.models.Algorithm;
 import com.smatworld.iniencrypt.models.FileData;
+import com.smatworld.iniencrypt.models.TaskData;
 import com.smatworld.iniencrypt.models.TaskStatus;
 import com.smatworld.iniencrypt.presentation.FileViewModel;
+import com.smatworld.iniencrypt.utils.Constants;
 import com.smatworld.iniencrypt.utils.FileUtil;
 
 import java.io.File;
@@ -48,6 +54,11 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     public static final int FILE_REQUEST_CODE = 4;
     private FileViewModel mFileViewModel;
     private BottomDialog mBottomDialog;
+
+    private Observer<TaskData<InputStream>> mEncryptObserver;
+    private Observer<TaskData<InputStream>> mDecryptObserver;
+    private LiveData<TaskData<InputStream>> mDecryptLiveData;
+    private LiveData<TaskData<InputStream>> mEncryptLiveData;
 
     public MainFragment() {
         // Required empty public constructor
@@ -84,70 +95,67 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         }
 
         mBinding.refreshButton.setOnClickListener(v -> refreshWorkSpace());
-        mBinding.encryptButton.setOnClickListener(v -> displayInputDialog(16));
+        mBinding.encryptButton.setOnClickListener(v -> displayInputDialog());
         mBinding.decryptButton.setOnClickListener(v -> {
             final FileData fileData = mFileViewModel.getFileData().getValue();
-            if (fileData != null && fileData.getEncryptedStream() != null)
-                startDecryption(fileData.getEncryptedStream());
+            if (fileData != null && fileData.getEncryptedFile() != null)
+                startDecryption(fileData.getKey());
             else displaySnackBar("You have to encrypt a file first.");
         });
     }
 
-    private void startDecryption(InputStream encryptedStream) {
+    private void startDecryption(String key) {
         displayBottomDialog(String.format(Locale.getDefault(), "%s decryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_no_encryption_blue, false);
+        final FileData fileData = mFileViewModel.getFileData().getValue();
+        String encryptedFileName = "";
+        if (Objects.requireNonNull(fileData).isImage())
+            encryptedFileName = Constants.ENCRYPTED_IMAGE_FILE_NAME;
+        else encryptedFileName = Constants.ENCRYPTED_TEXT_FILE_NAME;
         switch (mFileViewModel.getAlgorithm()) {
             case AES:
-                final FileData fileData = mFileViewModel.getFileData().getValue();
-                mFileViewModel.decryptAES(encryptedStream, fileData.getKey()).observe(getViewLifecycleOwner(), data -> {
-                    if (data.getTaskStatus() == TaskStatus.SUCCESS) {
-                        if (mBottomDialog != null) mBottomDialog.dismiss();
-                        displaySnackBar(data.getSuccessMessage());
-                        final InputStream decryptedStream = data.getData();
-                        mBinding.plainTv.setText(DataUtil.getEncodedStream(decryptedStream));
-                        final long decryptionTime = data.getEndTime() - data.getStartTime();
-                        mBinding.decryptionTimeTv.setText(getString(R.string.decryption_time, String.valueOf(decryptionTime)));
-                        mBinding.decryptionTimeTv.setVisibility(View.VISIBLE);
-                        // update ViewModel
-                        fileData.setDecryptedStream(decryptedStream);
-                        fileData.setDecryptionTime(decryptionTime);
-                        fileData.setStreamAvailable(true);
-                        data.setTaskStatus(TaskStatus.PENDING);
-                    } else if (data.getTaskStatus() == TaskStatus.FAILED) {
-                        if (mBottomDialog != null) mBottomDialog.dismiss();
-                        displaySnackBar(data.getErrorMessage());
-                        data.setTaskStatus(TaskStatus.PENDING);
-                    }
-                });
+                mDecryptLiveData = mFileViewModel.decryptAES(DataUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), encryptedFileName)), key);
+                mDecryptObserver = decryptTaskObserver(fileData);
+                mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
+                break;
+            case TRIPLE_DES:
+                mDecryptLiveData = mFileViewModel.decryptTripleDES(DataUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), encryptedFileName)), key);
+                mDecryptObserver = decryptTaskObserver(fileData);
+                mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
+                break;
+            case RSA:
+                mDecryptLiveData = mFileViewModel.decryptRSA(DataUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), encryptedFileName)));
+                mDecryptObserver = decryptTaskObserver(fileData);
+                mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid cryptographic algorithm: " + mFileViewModel.getAlgorithm());
         }
     }
 
     private void startEncryption(String key) {
         displayBottomDialog(String.format(Locale.getDefault(), "%s encryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_encryption_blue, false);
+        final FileData fileData = mFileViewModel.getFileData().getValue();
         switch (mFileViewModel.getAlgorithm()) {
             case AES:
-                final FileData fileData = mFileViewModel.getFileData().getValue();
-                mFileViewModel.encryptAES(DataUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile()), key).observe(getViewLifecycleOwner(), data -> {
-                    if (data.getTaskStatus() == TaskStatus.SUCCESS) {
-                        if (mBottomDialog != null) mBottomDialog.dismiss();
-                        displaySnackBar(data.getSuccessMessage());
-                        final InputStream encryptedStream = data.getData();
-                        mBinding.encryptedTv.setText(DataUtil.getEncodedStream(encryptedStream));
-                        final long encryptionTime = data.getEndTime() - data.getStartTime();
-                        mBinding.encryptionTimeTv.setText(getString(R.string.encryption_time, String.valueOf(encryptionTime)));
-                        mBinding.encryptionTimeTv.setVisibility(View.VISIBLE);
-                        // update ViewModel
-                        fileData.setEncryptedStream(encryptedStream);
-                        fileData.setEncryptionTime(encryptionTime);
-                        fileData.setStreamAvailable(true);
-                        mBinding.decryptButton.setEnabled(true);
-                        data.setTaskStatus(TaskStatus.PENDING);
-                    } else if (data.getTaskStatus() == TaskStatus.FAILED) {
-                        if (mBottomDialog != null) mBottomDialog.dismiss();
-                        displaySnackBar(data.getErrorMessage());
-                        fileData.setStreamAvailable(false);
-                        data.setTaskStatus(TaskStatus.PENDING);
-                    }
-                });
+                mEncryptLiveData = mFileViewModel.encryptAES(DataUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile()), key);
+                mEncryptObserver = encryptTaskObserver(fileData);
+                mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
+                break;
+            case TRIPLE_DES:
+                mEncryptLiveData = mFileViewModel.encryptTripleDES(DataUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile()), key);
+                mEncryptObserver = encryptTaskObserver(fileData);
+                mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
+                break;
+            case RSA:
+                mEncryptLiveData = mFileViewModel.encryptRSA(DataUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile()), Integer.parseInt(key));
+                mEncryptObserver = encryptTaskObserver(fileData);
+                mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
+                break;
+            case DIFFIE_HELLMAN:
+                // FIXME: 27/03/2021 show option to select a Symmetric Algorithm
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid cryptographic algorithm: " + mFileViewModel.getAlgorithm());
         }
     }
 
@@ -164,43 +172,32 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                     final Uri imageUri = data.getData();
                     final File file = FileUtil.getFileFromUri(this, imageUri);
                     final String fileName = FileUtil.getQueryName(imageUri, this);
-                    String fileExtension = fileName.trim().substring(fileName.indexOf('.'));
-                    if (fileExtension.toLowerCase().startsWith(".t"))
+                    String fileExtension = FileUtil.getFileExtension(fileName);
+                    boolean isImage;
+                    if (fileExtension.toLowerCase().startsWith(".t")) {
+                        isImage = false;
                         previewData = FileUtil.getTextFromFile(file);
-                    else {
+                        // FIXME: 27/03/2021 Remove this
+                        FileUtil.saveFileToStorage(requireContext(), DataUtil.getInputStreamFromFile(file), Constants.PLAIN_TEXT_FILE_NAME + fileExtension);
+                        // display default image
+                    } else {
+                        isImage = true;
                         try {
                             bitmap = FileUtil.getBitmapFromUri(imageUri, this);
+                            // FIXME: 27/03/2021 Remove this
+                            FileUtil.saveFileToStorage(requireContext(), DataUtil.getInputStreamFromFile(file), Constants.PLAIN_IMAGE_NAME + fileExtension);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     }
 
-                    FileData fileData = new FileData(bitmap, file, fileName, file.length(), previewData);
+                    FileData fileData = new FileData(bitmap, file, fileName, file.length(), fileExtension, previewData, isImage);
                     mFileViewModel.setFileData(fileData);
                     mBinding.setViewModel(mFileViewModel);
                     changeViewState();
                 } else displaySnackBar("You can only upload a single file.");
             }
         }
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        mBinding = null;
-    }
-
-    private void displaySnackBar(String message) {
-        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show();
-    }
-
-    private void closeAppOnBackPressed() {
-        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                requireActivity().finish();
-            }
-        });
     }
 
     @Override
@@ -242,6 +239,112 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mBinding = null;
+    }
+
+    private void closeAppOnBackPressed() {
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                requireActivity().finish();
+            }
+        });
+    }
+
+    private Observer<TaskData<InputStream>> encryptTaskObserver(FileData fileData) {
+        return taskData -> {
+            if (taskData.getTaskStatus() == TaskStatus.SUCCESS) {
+                dismissBottomDialog();
+                displaySnackBar(taskData.getSuccessMessage());
+                final InputStream encryptedStream = taskData.getData();
+                String encodedFile;
+                // save encrypted data to File
+                if (fileData.isImage()) {
+                    final String encryptedImageFileName = Constants.ENCRYPTED_IMAGE_FILE_NAME;
+                    FileUtil.saveFileToStorage(requireContext(), encryptedStream, encryptedImageFileName);
+                    encodedFile = FileUtil.getEncodedFile(FileUtil.getFile(requireContext(), encryptedImageFileName));
+                    mBinding.encryptedTv.setText(encodedFile);
+                    mBinding.previewImage.setImageResource(R.drawable.image_encrypt);
+                } else {
+                    final String encryptedTextFileName = Constants.ENCRYPTED_TEXT_FILE_NAME;
+                    FileUtil.saveFileToStorage(requireContext(), encryptedStream, encryptedTextFileName);
+                    encodedFile = FileUtil.getEncodedFile(FileUtil.getFile(requireContext(), encryptedTextFileName));
+                    mBinding.encryptedTv.setText(encodedFile);
+                }
+
+                final long encryptionTime = taskData.getEndTime() - taskData.getStartTime();
+                mBinding.encryptionTimeTv.setText(getString(R.string.encryption_time, String.valueOf(encryptionTime)));
+                mBinding.encryptionTimeTv.setVisibility(View.VISIBLE);
+                // update ViewModel
+                fileData.setEncryptedFile(encodedFile);
+                fileData.setEncryptionTime(encryptionTime);
+                fileData.setStreamAvailable(true);
+                mBinding.decryptButton.setEnabled(true);
+                removeObservers();
+            } else if (taskData.getTaskStatus() == TaskStatus.FAILED) {
+                dismissBottomDialog();
+                displaySnackBar(taskData.getErrorMessage());
+                fileData.setStreamAvailable(false);
+                removeObservers();
+            }
+        };
+    }
+
+    private Observer<TaskData<InputStream>> decryptTaskObserver(FileData fileData) {
+        return data -> {
+            if (data.getTaskStatus() == TaskStatus.SUCCESS) {
+                dismissBottomDialog();
+                displaySnackBar(data.getSuccessMessage());
+                final InputStream decryptedStream = data.getData();
+                String decodedText = "";
+                String decryptedImagePath = "";
+
+                // save encrypted data to File
+                if (fileData.isImage()) {
+                    final String filename = Constants.DECRYPTED_IMAGE_FILE_NAME + fileData.getFileExtension();
+                    FileUtil.saveFileToStorage(requireContext(), decryptedStream, filename);
+                    decryptedImagePath = FileUtil.getFile(requireContext(), filename).getPath();
+                    mBinding.previewImage.setImageBitmap(BitmapFactory.decodeFile(decryptedImagePath));
+                } else {
+                    final String filename = Constants.DECRYPTED_TEXT_FILE_NAME + fileData.getFileExtension();
+                    FileUtil.saveFileToStorage(requireContext(), decryptedStream, filename);
+                    decodedText = FileUtil.getTextFromFile(FileUtil.getFile(requireContext(), filename));
+                    mBinding.plainTv.setText(decodedText);
+                }
+
+                final long decryptionTime = data.getEndTime() - data.getStartTime();
+                mBinding.decryptionTimeTv.setText(getString(R.string.decryption_time, String.valueOf(decryptionTime)));
+                mBinding.decryptionTimeTv.setVisibility(View.VISIBLE);
+                // update ViewModel
+                fileData.setDecryptedText(decodedText);
+                fileData.setDecryptedImagePath(decryptedImagePath);
+                if (!decryptedImagePath.isEmpty())
+                    fileData.setBitmap(BitmapFactory.decodeFile(decryptedImagePath));
+                fileData.setDecryptionTime(decryptionTime);
+                fileData.setStreamAvailable(true);
+                removeObservers();
+            } else if (data.getTaskStatus() == TaskStatus.FAILED) {
+                dismissBottomDialog();
+                displaySnackBar(data.getErrorMessage());
+                removeObservers();
+            }
+        };
+    }
+
+    private void removeObservers() {
+        if (mDecryptObserver != null && mDecryptLiveData != null) {
+            if (mDecryptLiveData.hasActiveObservers())
+                mDecryptLiveData.removeObserver(mDecryptObserver);
+        }
+        if (mEncryptObserver != null && mEncryptLiveData != null) {
+            if (mEncryptLiveData.hasActiveObservers())
+                mEncryptLiveData.removeObserver(mEncryptObserver);
+        }
+    }
+
     private void setState(ChipGroup chipGroup) {
         for (int i = 0; i < chipGroup.getChildCount(); i++)
             ((Chip) chipGroup.getChildAt(i)).setChecked(false);
@@ -252,10 +355,13 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         mBinding.decryptButton.setEnabled(false);
     }
 
-    /*private void enableCryptographyButtons() {
-        mBinding.encryptButton.setEnabled(true);
-        mBinding.decryptButton.setEnabled(true);
-    }*/
+    private void displaySnackBar(String message) {
+        Snackbar.make(requireView(), message, Snackbar.LENGTH_LONG).show();
+    }
+
+    private void dismissBottomDialog() {
+        if (mBottomDialog != null) mBottomDialog.dismiss();
+    }
 
     private void refreshWorkSpace() {
         new MaterialAlertDialogBuilder(requireContext())
@@ -288,26 +394,69 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         mBottomDialog.show(requireParentFragment().getParentFragmentManager(), title);
     }
 
-    private void displayInputDialog(int keyLength) {
+    private void displayInputDialog() {
         FragmentMainDialogBinding dialogBinding = FragmentMainDialogBinding.inflate(LayoutInflater.from(requireContext()));
         final TextInputLayout textInputLayout = dialogBinding.dataTil;
-        textInputLayout.setCounterMaxLength(keyLength);
-        textInputLayout.setHint(getString(R.string.hint_key_length, keyLength));
+        String hint = "";
+        int maxKeyLength;
+        int minKeyLength;
+        boolean isSymmetric;
+
+        switch (mFileViewModel.getAlgorithm()) {
+            case AES:
+                Objects.requireNonNull(textInputLayout.getEditText()).setInputType(EditorInfo.TYPE_CLASS_TEXT);
+                minKeyLength = Constants.AES_MAX_KEY_SIZE;
+                maxKeyLength = Constants.AES_MAX_KEY_SIZE;
+                hint = getString(R.string.key_hint_aes, maxKeyLength);
+                isSymmetric = true;
+                break;
+            case TRIPLE_DES:
+                Objects.requireNonNull(textInputLayout.getEditText()).setInputType(EditorInfo.TYPE_CLASS_TEXT);
+                minKeyLength = Constants.TRIPLE_DES_MIN_KEY_SIZE;
+                maxKeyLength = Constants.TRIPLE_DES_MAX_KEY_SIZE;
+                hint = String.format(Locale.getDefault(), getString(R.string.key_hint_3des), minKeyLength, maxKeyLength);
+                isSymmetric = true;
+                break;
+            case RSA:
+                Objects.requireNonNull(textInputLayout.getEditText()).setInputType(EditorInfo.TYPE_CLASS_NUMBER);
+                minKeyLength = Constants.RSA_MIN_KEY_SIZE;
+                maxKeyLength = Constants.RSA_MAX_KEY_SIZE;
+                hint = String.format(Locale.getDefault(), getString(R.string.key_hint_rsa), minKeyLength, maxKeyLength);
+                isSymmetric = false;
+                break;
+            case DIFFIE_HELLMAN:
+                Objects.requireNonNull(textInputLayout.getEditText()).setInputType(EditorInfo.TYPE_CLASS_NUMBER);
+                minKeyLength = Constants.DH_MIN_KEY_SIZE;
+                maxKeyLength = Constants.DH_MAX_KEY_SIZE;
+                hint = String.format(Locale.getDefault(), getString(R.string.key_hint_dh), minKeyLength, maxKeyLength);
+                isSymmetric = false;
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown Algorithm.");
+        }
+        if (isSymmetric) textInputLayout.setCounterMaxLength(maxKeyLength);
+        else textInputLayout.setCounterMaxLength(5);
+        textInputLayout.setHint(hint);
         dialogBinding.dataEt.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-                int charCount = s.length();
-                dialogBinding.dialogButton.setEnabled(charCount == keyLength);
+                if (!s.toString().isEmpty()) {
+                    int charCount = s.length();
+                    if (isSymmetric)
+                        dialogBinding.dialogButton.setEnabled(charCount == minKeyLength || charCount == maxKeyLength);
+                    else {
+                        int size = Integer.parseInt(s.toString());
+                        dialogBinding.dialogButton.setEnabled(size == minKeyLength || size == maxKeyLength || size % minKeyLength == 0 || ((size >= minKeyLength && size <= maxKeyLength) && (size % 64 == 0)));
+                    }
+                }
             }
         });
         final AlertDialog alertDialog = new MaterialAlertDialogBuilder(requireContext())
@@ -333,7 +482,8 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         if (fileData == null) disableCryptographyButtons();
         else {
             mBinding.encryptButton.setEnabled(true);
-            mBinding.decryptButton.setEnabled(fileData.getEncryptedStream() != null);
+            // mBinding.decryptButton.setEnabled(fileData.getEncryptedStream() != null);
+            mBinding.decryptButton.setEnabled(fileData.getEncryptedFile() != null);
         }
     }
 }

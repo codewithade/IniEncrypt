@@ -82,4 +82,18 @@ public class DataUtil {
         }
         return encodedString;
     }
+
+    public static String getTextStream(InputStream stream) {
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            byte[] buffer = new byte[1024];
+            while (stream.read(buffer) != -1) {
+                String encodedString = Base64.encodeToString(buffer, Base64.DEFAULT);
+                stringBuilder.append(encodedString);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return stringBuilder.toString();
+    }
 }

@@ -30,6 +30,7 @@ public class DiffieHellman {
     private KeyAgreement mSenderKeyAgreement;
     private KeyAgreement mRecipientKeyAgreement;
 
+    // Keysize must be multiple of 64, and can only range from 512 to 2048 (inclusive)
     public DiffieHellman(int keySize, Algorithm symmetricAlgorithm) {
         this.mKeySize = keySize;
         mSymmetricAlgorithm = symmetricAlgorithm;

@@ -16,12 +16,20 @@ import javax.crypto.NoSuchPaddingException;
 public class RSA {
 
     private static final String TRANSFORMATION = "RSA/ECB/PKCS1Padding";
-    private final PrivateKey mPrivateKey;
-    private final PublicKey mPublicKey;
+    private PrivateKey mPrivateKey;
+    private PublicKey mPublicKey;
 
     public RSA(PrivateKey privateKey, PublicKey publicKey) {
         this.mPrivateKey = privateKey;
         this.mPublicKey = publicKey;
+    }
+
+    public RSA(PrivateKey privateKey) {
+        mPrivateKey = privateKey;
+    }
+
+    public RSA(PublicKey publicKey) {
+        mPublicKey = publicKey;
     }
 
     public InputStream encrypt(InputStream stream2encrypt)

@@ -34,5 +34,8 @@
     <string name="refresh">Refresh</string>
     <string name="refresh_page_dec">refresh page</string>
     <string name="key_text_view">Key:</string>
-    <string name="hint_key_length">Enter Key (%d characters)</string>
+    <string name="key_hint_aes">Enter Key (%d characters)</string>
+    <string name="key_hint_3des">Enter Key (%d or %d characters)</string>
+    <string name="key_hint_rsa">Enter Key size in multiples of %d (max of %d)</string>
+    <string name="key_hint_dh">Enter Key size in multiples of 64 (min: %d, max: %d)</string>
 </resources>

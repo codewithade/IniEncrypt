@@ -12,7 +12,7 @@
             style="@style/Widget.IniEncrypt.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/hint_key_length"
+            android:hint="@string/key_hint_aes"
             app:counterEnabled="true"
             app:errorEnabled="true"
             app:layout_constraintEnd_toEndOf="parent"

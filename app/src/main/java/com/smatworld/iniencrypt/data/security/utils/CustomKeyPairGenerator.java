@@ -8,15 +8,21 @@ import java.security.PublicKey;
 
 public class CustomKeyPairGenerator {
 
-    private PrivateKey privateKey;
-    private PublicKey publicKey;
+    private final PrivateKey privateKey;
+    private final PublicKey publicKey;
     private final int keyLength;
     private final String algorithm;
 
-    public CustomKeyPairGenerator(int keyLength, String algorithm) throws NoSuchAlgorithmException {
+    public CustomKeyPairGenerator(int keyLength, String algorithm) {
         this.algorithm = algorithm;
         this.keyLength = keyLength;
-        KeyPairGenerator keyGen = KeyPairGenerator.getInstance(algorithm);
+        KeyPairGenerator keyGen = null;
+        try {
+            keyGen = KeyPairGenerator.getInstance(algorithm);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        assert keyGen != null;
         keyGen.initialize(keyLength);
         KeyPair pair = keyGen.generateKeyPair();
         this.privateKey = pair.getPrivate();
