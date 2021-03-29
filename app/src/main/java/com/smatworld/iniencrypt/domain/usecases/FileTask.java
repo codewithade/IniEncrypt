@@ -23,10 +23,17 @@ public class FileTask {
         return mFileRepo.encryptAES(inputStream, key);
     }
 
+    public LiveData<TaskData<InputStream>> encryptAES(InputStream inputStream, Key key) {
+        return mFileRepo.encryptAES(inputStream, key);
+    }
+
     public LiveData<TaskData<InputStream>> decryptAES(InputStream inputStream, byte[] key) {
         return mFileRepo.decryptAES(inputStream, key);
     }
 
+    public LiveData<TaskData<InputStream>> decryptAES(InputStream inputStream, Key key) {
+        return mFileRepo.decryptAES(inputStream, key);
+    }
 
     public LiveData<TaskData<InputStream>> encryptTripleDES(InputStream inputStream, byte[] key) {
         return mFileRepo.encryptTripleDES(inputStream, key);
@@ -37,6 +44,10 @@ public class FileTask {
     }
 
     public LiveData<TaskData<InputStream>> decryptTripleDES(InputStream inputStream, byte[] key) {
+        return mFileRepo.decryptTripleDES(inputStream, key);
+    }
+
+    public LiveData<TaskData<InputStream>> decryptTripleDES(InputStream inputStream, Key key) {
         return mFileRepo.decryptTripleDES(inputStream, key);
     }
 
@@ -51,4 +62,5 @@ public class FileTask {
     public LiveData<TaskData<Key>> initDHKeyExchange(int keySize, Algorithm symmetricAlgorithm) {
         return mFileRepo.initDHKeyExchange(keySize, symmetricAlgorithm);
     }
+
 }

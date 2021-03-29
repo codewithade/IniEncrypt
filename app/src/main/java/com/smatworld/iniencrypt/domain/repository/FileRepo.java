@@ -13,13 +13,19 @@ import java.security.PublicKey;
 public interface FileRepo {
     LiveData<TaskData<InputStream>> encryptAES(InputStream inputStream, byte[] key);
 
+    LiveData<TaskData<InputStream>> encryptAES(InputStream inputStream, Key key);
+
     LiveData<TaskData<InputStream>> decryptAES(InputStream inputStream, byte[] key);
+
+    LiveData<TaskData<InputStream>> decryptAES(InputStream inputStream, Key key);
 
     LiveData<TaskData<InputStream>> encryptTripleDES(InputStream inputStream, byte[] key);
 
     LiveData<TaskData<InputStream>> encryptTripleDES(InputStream inputStream, Key key);
 
     LiveData<TaskData<InputStream>> decryptTripleDES(InputStream inputStream, byte[] key);
+
+    LiveData<TaskData<InputStream>> decryptTripleDES(InputStream inputStream, Key key);
 
     LiveData<TaskData<InputStream>> encryptRSA(InputStream inputStream, PublicKey publicKey);
 

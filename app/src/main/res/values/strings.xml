@@ -42,4 +42,7 @@
     <string name="dialog_message">Are you sure you want to reset the workspace?</string>
     <string name="dialog_no">No</string>
     <string name="dialog_yes">Yes</string>
+    <string name="select_algorithm">Select a symmetric algorithm:</string>
+    <string name="error_message">You have to encrypt with DH First.</string>
+    <string name="invalid_algorithm">\"Invalid cryptographic algorithm: \"</string>
 </resources>

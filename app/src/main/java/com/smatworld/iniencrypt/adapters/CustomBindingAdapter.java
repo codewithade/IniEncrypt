@@ -10,11 +10,9 @@ import androidx.databinding.BindingAdapter;
 
 import com.google.android.material.textview.MaterialTextView;
 import com.smatworld.iniencrypt.R;
-import com.smatworld.iniencrypt.data.security.utils.DataUtil;
 import com.smatworld.iniencrypt.utils.Constants;
 import com.smatworld.iniencrypt.utils.StringUtil;
 
-import java.io.InputStream;
 import java.util.Locale;
 
 
@@ -60,7 +58,7 @@ public class CustomBindingAdapter {
 
     /*@BindingAdapter("data_stream")
     public static void setDataStream(MaterialTextView textView, InputStream stream) {
-        if (stream != null) textView.setText(DataUtil.getEncodedStream(stream));
+        if (stream != null) textView.setText(SecurityUtil.getEncodedStream(stream));
         else textView.setText("");
     }*/
 

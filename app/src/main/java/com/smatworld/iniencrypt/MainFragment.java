@@ -23,13 +23,15 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
-import com.smatworld.iniencrypt.data.security.utils.DataUtil;
+import com.smatworld.iniencrypt.data.security.utils.SecurityUtil;
+import com.smatworld.iniencrypt.databinding.FragmentAlgorithmDialogBinding;
 import com.smatworld.iniencrypt.databinding.FragmentMainBinding;
 import com.smatworld.iniencrypt.databinding.FragmentMainDialogBinding;
 import com.smatworld.iniencrypt.di.AppContainer;
@@ -45,6 +47,8 @@ import com.smatworld.iniencrypt.utils.FileUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Key;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -57,8 +61,10 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
     private Observer<TaskData<InputStream>> mEncryptObserver;
     private Observer<TaskData<InputStream>> mDecryptObserver;
+    private Observer<TaskData<Key>> mDHKeyExchangeObserver;
     private LiveData<TaskData<InputStream>> mDecryptLiveData;
     private LiveData<TaskData<InputStream>> mEncryptLiveData;
+    private LiveData<TaskData<Key>> mDHLiveData;
 
     public MainFragment() {
         // Required empty public constructor
@@ -104,61 +110,6 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-    private void startDecryption(String key) {
-        displayBottomDialog(String.format(Locale.getDefault(), "%s decryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_no_encryption_blue, false);
-        final FileData fileData = mFileViewModel.getFileData().getValue();
-        String encryptedFileName = "";
-        if (Objects.requireNonNull(fileData).isImage())
-            encryptedFileName = Constants.ENCRYPTED_IMAGE_FILE_NAME;
-        else encryptedFileName = Constants.ENCRYPTED_TEXT_FILE_NAME;
-        switch (mFileViewModel.getAlgorithm()) {
-            case AES:
-                mDecryptLiveData = mFileViewModel.decryptAES(DataUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), encryptedFileName)), key);
-                mDecryptObserver = decryptTaskObserver(fileData);
-                mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
-                break;
-            case TRIPLE_DES:
-                mDecryptLiveData = mFileViewModel.decryptTripleDES(DataUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), encryptedFileName)), key);
-                mDecryptObserver = decryptTaskObserver(fileData);
-                mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
-                break;
-            case RSA:
-                mDecryptLiveData = mFileViewModel.decryptRSA(DataUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), encryptedFileName)));
-                mDecryptObserver = decryptTaskObserver(fileData);
-                mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid cryptographic algorithm: " + mFileViewModel.getAlgorithm());
-        }
-    }
-
-    private void startEncryption(String key) {
-        displayBottomDialog(String.format(Locale.getDefault(), "%s encryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_encryption_blue, false);
-        final FileData fileData = mFileViewModel.getFileData().getValue();
-        switch (mFileViewModel.getAlgorithm()) {
-            case AES:
-                mEncryptLiveData = mFileViewModel.encryptAES(DataUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile()), key);
-                mEncryptObserver = encryptTaskObserver(fileData);
-                mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
-                break;
-            case TRIPLE_DES:
-                mEncryptLiveData = mFileViewModel.encryptTripleDES(DataUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile()), key);
-                mEncryptObserver = encryptTaskObserver(fileData);
-                mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
-                break;
-            case RSA:
-                mEncryptLiveData = mFileViewModel.encryptRSA(DataUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile()), Integer.parseInt(key));
-                mEncryptObserver = encryptTaskObserver(fileData);
-                mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
-                break;
-            case DIFFIE_HELLMAN:
-                // FIXME: 27/03/2021 show option to select a Symmetric Algorithm
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid cryptographic algorithm: " + mFileViewModel.getAlgorithm());
-        }
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -178,14 +129,14 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                         isImage = false;
                         previewData = FileUtil.getTextFromFile(file);
                         // FIXME: 27/03/2021 Remove this
-                        FileUtil.saveFileToStorage(requireContext(), DataUtil.getInputStreamFromFile(file), Constants.PLAIN_TEXT_FILE_NAME + fileExtension);
+                        FileUtil.saveFileToStorage(requireContext(), SecurityUtil.getInputStreamFromFile(file), Constants.PLAIN_TEXT_FILE_NAME + fileExtension);
                         // display default image
                     } else {
                         isImage = true;
                         try {
                             bitmap = FileUtil.getBitmapFromUri(imageUri, this);
                             // FIXME: 27/03/2021 Remove this
-                            FileUtil.saveFileToStorage(requireContext(), DataUtil.getInputStreamFromFile(file), Constants.PLAIN_IMAGE_NAME + fileExtension);
+                            FileUtil.saveFileToStorage(requireContext(), SecurityUtil.getInputStreamFromFile(file), Constants.PLAIN_IMAGE_NAME + fileExtension);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -252,6 +203,67 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 requireActivity().finish();
             }
         });
+    }
+
+    private void startDecryption(String key) {
+        displayBottomDialog(String.format(Locale.getDefault(), "%s decryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_no_encryption_blue, false);
+        final FileData fileData = mFileViewModel.getFileData().getValue();
+        String encryptedFileName = "";
+        if (Objects.requireNonNull(fileData).isImage())
+            encryptedFileName = Constants.ENCRYPTED_IMAGE_FILE_NAME;
+        else encryptedFileName = Constants.ENCRYPTED_TEXT_FILE_NAME;
+        switch (mFileViewModel.getAlgorithm()) {
+            case AES:
+                mDecryptLiveData = mFileViewModel.decryptAES(SecurityUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), encryptedFileName)), key);
+                mDecryptObserver = decryptTaskObserver(fileData);
+                mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
+                break;
+            case TRIPLE_DES:
+                mDecryptLiveData = mFileViewModel.decryptTripleDES(SecurityUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), encryptedFileName)), key);
+                mDecryptObserver = decryptTaskObserver(fileData);
+                mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
+                break;
+            case RSA:
+                mDecryptLiveData = mFileViewModel.decryptRSA(SecurityUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), encryptedFileName)));
+                mDecryptObserver = decryptTaskObserver(fileData);
+                mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
+                break;
+            case DIFFIE_HELLMAN:
+                if (fileData.isSecretKeyAvailable())
+                    decryptDH(mFileViewModel.getSelectedSymmetricAlgorithm());
+                else displaySnackBar(getString(R.string.error_message));
+                break;
+            default:
+                throw new IllegalArgumentException(getString(R.string.invalid_algorithm) + mFileViewModel.getAlgorithm());
+        }
+    }
+
+    private void startEncryption(String key) {
+        displayBottomDialog(String.format(Locale.getDefault(), "%s encryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_encryption_blue, false);
+        final FileData fileData = mFileViewModel.getFileData().getValue();
+        switch (mFileViewModel.getAlgorithm()) {
+            case AES:
+                mEncryptLiveData = mFileViewModel.encryptAES(SecurityUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile()), key);
+                mEncryptObserver = encryptTaskObserver(fileData);
+                mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
+                break;
+            case TRIPLE_DES:
+                mEncryptLiveData = mFileViewModel.encryptTripleDES(SecurityUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile()), key);
+                mEncryptObserver = encryptTaskObserver(fileData);
+                mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
+                break;
+            case RSA:
+                mEncryptLiveData = mFileViewModel.encryptRSA(SecurityUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile()), Integer.parseInt(key));
+                mEncryptObserver = encryptTaskObserver(fileData);
+                mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
+                break;
+            case DIFFIE_HELLMAN:
+                // show option to select a Symmetric Algorithm
+                displaySelectAlgorithmDialog();
+                break;
+            default:
+                throw new IllegalArgumentException(getString(R.string.invalid_algorithm) + mFileViewModel.getAlgorithm());
+        }
     }
 
     private Observer<TaskData<InputStream>> encryptTaskObserver(FileData fileData) {
@@ -335,14 +347,15 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     }
 
     private void removeObservers() {
-        if (mDecryptObserver != null && mDecryptLiveData != null) {
+        if (mDecryptObserver != null && mDecryptLiveData != null)
             if (mDecryptLiveData.hasActiveObservers())
                 mDecryptLiveData.removeObserver(mDecryptObserver);
-        }
-        if (mEncryptObserver != null && mEncryptLiveData != null) {
+        if (mEncryptObserver != null && mEncryptLiveData != null)
             if (mEncryptLiveData.hasActiveObservers())
                 mEncryptLiveData.removeObserver(mEncryptObserver);
-        }
+        if (mDHKeyExchangeObserver != null && mDHLiveData != null)
+            if (mDHLiveData.hasActiveObservers())
+                mDHLiveData.removeObserver(mDHKeyExchangeObserver);
     }
 
     private void setState(ChipGroup chipGroup) {
@@ -394,10 +407,98 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         mBottomDialog.show(requireParentFragment().getParentFragmentManager(), title);
     }
 
+    private void displaySelectAlgorithmDialog() {
+        dismissBottomDialog();
+        FragmentAlgorithmDialogBinding binding = FragmentAlgorithmDialogBinding.inflate(LayoutInflater.from(requireContext()));
+        binding.setAlgorithmList(Arrays.asList(Algorithm.AES, Algorithm.TRIPLE_DES));
+        final BottomSheetDialog sheetDialog = new BottomSheetDialog(requireContext());
+        sheetDialog.setContentView(binding.getRoot());
+        final FileData fileData = mFileViewModel.getFileData().getValue();
+        sheetDialog.show();
+        binding.alg1.setOnClickListener(v -> {
+            sheetDialog.dismiss();
+            mDHLiveData = mFileViewModel.initDHKeyExchange(Integer.parseInt(Objects.requireNonNull(fileData).getKey()), Algorithm.AES);
+            mDHKeyExchangeObserver = DHTaskObserver(Algorithm.AES);
+            mDHLiveData.observe(getViewLifecycleOwner(), mDHKeyExchangeObserver);
+        });
+        binding.alg2.setOnClickListener(v -> {
+            sheetDialog.dismiss();
+            mDHLiveData = mFileViewModel.initDHKeyExchange(Integer.parseInt(Objects.requireNonNull(fileData).getKey()), Algorithm.TRIPLE_DES);
+            mDHKeyExchangeObserver = DHTaskObserver(Algorithm.TRIPLE_DES);
+            mDHLiveData.observe(getViewLifecycleOwner(), mDHKeyExchangeObserver);
+        });
+    }
+
+    private Observer<TaskData<Key>> DHTaskObserver(Algorithm algorithm) {
+        return keyTaskData -> {
+            if (keyTaskData.getTaskStatus() == TaskStatus.SUCCESS) {
+                displaySnackBar(keyTaskData.getSuccessMessage());
+                final Key key = keyTaskData.getData();
+                // save key to Storage
+                FileUtil.saveFileToStorage(requireContext(), key.getEncoded(), Constants.ENCRYPTED_KEY_FILE_NAME);
+                // update ViewModel
+                Objects.requireNonNull(mFileViewModel.getFileData().getValue()).setSecretKeyAvailable(true);
+                mFileViewModel.setSelectedSymmetricAlgorithm(algorithm);
+                removeObservers();
+                encryptDH(algorithm);
+            } else if (keyTaskData.getTaskStatus() == TaskStatus.FAILED) {
+                dismissBottomDialog();
+                displaySnackBar(keyTaskData.getErrorMessage());
+                // update ViewModel
+                Objects.requireNonNull(mFileViewModel.getFileData().getValue()).setSecretKeyAvailable(false);
+                removeObservers();
+            }
+        };
+    }
+
+    private void encryptDH(Algorithm algorithm) {
+        final FileData fileData = mFileViewModel.getFileData().getValue();
+        final InputStream inputStreamFromFile = SecurityUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile());
+        final Key secretKeyFromFile = FileUtil.getSecretKeyFromFile(FileUtil.getFile(requireContext(), Constants.ENCRYPTED_KEY_FILE_NAME), algorithm);
+        switch (algorithm) {
+            case AES:
+                mEncryptLiveData = mFileViewModel.encryptAES(inputStreamFromFile, secretKeyFromFile);
+                mEncryptObserver = encryptTaskObserver(fileData);
+                mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
+                break;
+            case TRIPLE_DES:
+                mEncryptLiveData = mFileViewModel.encryptTripleDES(inputStreamFromFile, secretKeyFromFile);
+                mEncryptObserver = encryptTaskObserver(fileData);
+                mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
+                break;
+            default:
+                throw new IllegalArgumentException(getString(R.string.invalid_algorithm) + mFileViewModel.getAlgorithm());
+        }
+    }
+
+    private void decryptDH(Algorithm algorithm) {
+        final FileData fileData = mFileViewModel.getFileData().getValue();
+        String encryptedFileName = "";
+        if (Objects.requireNonNull(fileData).isImage())
+            encryptedFileName = Constants.ENCRYPTED_IMAGE_FILE_NAME;
+        else encryptedFileName = Constants.ENCRYPTED_TEXT_FILE_NAME;
+        final Key secretKeyFromFile = FileUtil.getSecretKeyFromFile(FileUtil.getFile(requireContext(), Constants.ENCRYPTED_KEY_FILE_NAME), algorithm);
+        final InputStream inputStreamFromFile = SecurityUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), encryptedFileName));
+        switch (algorithm) {
+            case AES:
+                mDecryptLiveData = mFileViewModel.decryptAES(inputStreamFromFile, secretKeyFromFile);
+                mDecryptObserver = decryptTaskObserver(fileData);
+                mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
+                break;
+            case TRIPLE_DES:
+                mDecryptLiveData = mFileViewModel.decryptTripleDES(inputStreamFromFile, secretKeyFromFile);
+                mDecryptObserver = decryptTaskObserver(fileData);
+                mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
+                break;
+            default:
+                throw new IllegalArgumentException(getString(R.string.invalid_algorithm) + mFileViewModel.getAlgorithm());
+        }
+    }
+
     private void displayInputDialog() {
         FragmentMainDialogBinding dialogBinding = FragmentMainDialogBinding.inflate(LayoutInflater.from(requireContext()));
         final TextInputLayout textInputLayout = dialogBinding.dataTil;
-        String hint = "";
+        String hint;
         int maxKeyLength;
         int minKeyLength;
         boolean isSymmetric;

@@ -17,6 +17,7 @@ public class Constants {
     public static final String DECRYPTED_TEXT_FILE_NAME = "decryptedText";
     public static final String ENCRYPTED_IMAGE_FILE_NAME = "cryptImage.bin";
     public static final String DECRYPTED_IMAGE_FILE_NAME = "decryptedImage";
+    public static final String ENCRYPTED_KEY_FILE_NAME = "secretKey.bin";
 
     // remove
     public static final String PLAIN_IMAGE_NAME = "plainImage";

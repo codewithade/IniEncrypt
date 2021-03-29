@@ -10,9 +10,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.Key;
 
-public class DataUtil {
+public class SecurityUtil {
 
-    private DataUtil() {
+    private SecurityUtil() {
     }
 
     public static String getEncodedKey(Key key) {

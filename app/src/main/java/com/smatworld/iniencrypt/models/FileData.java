@@ -10,6 +10,7 @@ public class FileData {
     private String mFileName;
     private long mFileSize;
     private boolean mIsStreamAvailable;
+    private boolean mIsSecretKeyAvailable;
     private long encryptionTime;
     private long decryptionTime;
     private String key;
@@ -141,5 +142,13 @@ public class FileData {
 
     public void setDecryptedText(String decryptedText) {
         this.decryptedText = decryptedText;
+    }
+
+    public boolean isSecretKeyAvailable() {
+        return mIsSecretKeyAvailable;
+    }
+
+    public void setSecretKeyAvailable(boolean secretKeyAvailable) {
+        mIsSecretKeyAvailable = secretKeyAvailable;
     }
 }

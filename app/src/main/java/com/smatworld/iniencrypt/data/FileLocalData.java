@@ -45,7 +45,43 @@ public class FileLocalData implements FileRepo {
     }
 
     @Override
+    public LiveData<TaskData<InputStream>> encryptAES(InputStream inputStream, Key key) {
+        TaskData<InputStream> taskData = new TaskData<>();
+        AES aes = new AES(key);
+        try {
+            taskData.setStartTime(System.nanoTime());
+            final InputStream encryptedData = aes.encrypt(inputStream);
+            taskData.setData(encryptedData);
+            taskData.setSuccessMessage("Encryption successful!");
+            taskData.setTaskStatus(TaskStatus.SUCCESS);
+            taskData.setEndTime(System.nanoTime());
+            mCipherLiveData.setValue(taskData);
+        } catch (Exception e) {
+            processErrorResponse(taskData, e, "Encryption Failed.");
+        }
+        return mCipherLiveData;
+    }
+
+    @Override
     public LiveData<TaskData<InputStream>> decryptAES(InputStream inputStream, byte[] key) {
+        TaskData<InputStream> taskData = new TaskData<>();
+        AES aes = new AES(key);
+        try {
+            taskData.setStartTime(System.nanoTime());
+            final InputStream decryptedData = aes.decrypt(inputStream);
+            taskData.setData(decryptedData);
+            taskData.setSuccessMessage("Decryption successful!");
+            taskData.setTaskStatus(TaskStatus.SUCCESS);
+            taskData.setEndTime(System.nanoTime());
+            mCipherLiveData.setValue(taskData);
+        } catch (Exception e) {
+            processErrorResponse(taskData, e, "Decryption failed.");
+        }
+        return mCipherLiveData;
+    }
+
+    @Override
+    public LiveData<TaskData<InputStream>> decryptAES(InputStream inputStream, Key key) {
         TaskData<InputStream> taskData = new TaskData<>();
         AES aes = new AES(key);
         try {
@@ -86,6 +122,24 @@ public class FileLocalData implements FileRepo {
         TripleDES tripleDES = new TripleDES(key);
         try {
             taskData.setStartTime(System.nanoTime());
+            final InputStream encryptedData = tripleDES.encrypt(inputStream);
+            taskData.setData(encryptedData);
+            taskData.setSuccessMessage("Encryption successful!");
+            taskData.setTaskStatus(TaskStatus.SUCCESS);
+            taskData.setEndTime(System.nanoTime());
+            mCipherLiveData.setValue(taskData);
+        } catch (Exception e) {
+            processErrorResponse(taskData, e, "Encryption Failed.");
+        }
+        return mCipherLiveData;
+    }
+
+    @Override
+    public LiveData<TaskData<InputStream>> decryptTripleDES(InputStream inputStream, byte[] key) {
+        TaskData<InputStream> taskData = new TaskData<>();
+        TripleDES tripleDES = new TripleDES(key);
+        try {
+            taskData.setStartTime(System.nanoTime());
             final InputStream decryptedData = tripleDES.decrypt(inputStream);
             taskData.setData(decryptedData);
             taskData.setSuccessMessage("Decryption successful!");
@@ -99,7 +153,7 @@ public class FileLocalData implements FileRepo {
     }
 
     @Override
-    public LiveData<TaskData<InputStream>> decryptTripleDES(InputStream inputStream, byte[] key) {
+    public LiveData<TaskData<InputStream>> decryptTripleDES(InputStream inputStream, Key key) {
         TaskData<InputStream> taskData = new TaskData<>();
         TripleDES tripleDES = new TripleDES(key);
         try {

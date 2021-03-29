@@ -13,6 +13,8 @@ import android.util.Log;
 
 import androidx.fragment.app.Fragment;
 
+import com.smatworld.iniencrypt.models.Algorithm;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,6 +25,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
+
+import javax.crypto.spec.SecretKeySpec;
 
 import static com.smatworld.iniencrypt.utils.Constants.TAG;
 
@@ -209,5 +214,20 @@ public class FileUtil {
             }
         }
         return sb.toString();
+    }
+
+    public static Key getSecretKeyFromFile(File file, Algorithm symmetricAlgorithm) {
+        Key secretKey = null;
+        try {
+            Log.i(TAG, "getKeyFromFile: File Size: " + file.length());
+            FileInputStream fis = new FileInputStream(file);
+            byte[] sharedSecret = new byte[fis.available()];
+            final int readLength = fis.read(sharedSecret);
+            Log.i(TAG, "getKeyFromFile: ReadLength: " + readLength);
+            secretKey = new SecretKeySpec(sharedSecret, symmetricAlgorithm.getAlgorithm());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return secretKey;
     }
 }

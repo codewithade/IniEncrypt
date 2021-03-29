@@ -19,6 +19,7 @@ public class FileViewModel extends ViewModel {
     private boolean isAlgorithmSelected = false;
     private final MutableLiveData<FileData> mFileData = new MutableLiveData<>();
     private Algorithm mAlgorithm;
+    private Algorithm mSelectedSymmetricAlgorithm;
     private final FileTask mFileTask;
     private PrivateKey mPrivateKey;
     private PublicKey mPublicKey;
@@ -55,8 +56,16 @@ public class FileViewModel extends ViewModel {
         return mFileTask.encryptAES(inputStream, key.getBytes());
     }
 
+    public LiveData<TaskData<InputStream>> encryptAES(InputStream inputStream, Key key) {
+        return mFileTask.encryptAES(inputStream, key);
+    }
+
     public LiveData<TaskData<InputStream>> decryptAES(InputStream inputStream, String key) {
         return mFileTask.decryptAES(inputStream, key.getBytes());
+    }
+
+    public LiveData<TaskData<InputStream>> decryptAES(InputStream inputStream, Key key) {
+        return mFileTask.decryptAES(inputStream, key);
     }
 
     public LiveData<TaskData<InputStream>> encryptTripleDES(InputStream inputStream, String key) {
@@ -69,6 +78,10 @@ public class FileViewModel extends ViewModel {
 
     public LiveData<TaskData<InputStream>> decryptTripleDES(InputStream inputStream, String key) {
         return mFileTask.decryptTripleDES(inputStream, key.getBytes());
+    }
+
+    public LiveData<TaskData<InputStream>> decryptTripleDES(InputStream inputStream, Key key) {
+        return mFileTask.decryptTripleDES(inputStream, key);
     }
 
     public LiveData<TaskData<InputStream>> encryptRSA(InputStream inputStream, int keyLength) {
@@ -92,5 +105,13 @@ public class FileViewModel extends ViewModel {
 
     private void setPublicKey(PublicKey publicKey) {
         mPublicKey = publicKey;
+    }
+
+    public Algorithm getSelectedSymmetricAlgorithm() {
+        return mSelectedSymmetricAlgorithm;
+    }
+
+    public void setSelectedSymmetricAlgorithm(Algorithm selectedSymmetricAlgorithm) {
+        mSelectedSymmetricAlgorithm = selectedSymmetricAlgorithm;
     }
 }

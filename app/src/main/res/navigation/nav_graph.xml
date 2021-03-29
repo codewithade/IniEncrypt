@@ -9,7 +9,7 @@
         android:id="@+id/splashFragment"
         android:name="com.smatworld.iniencrypt.SplashFragment"
         android:label="Splash Screen"
-        tools:layout="@layout/fragment_splash" >
+        tools:layout="@layout/fragment_splash">
         <action
             android:id="@+id/action_splashFragment_to_mainFragment"
             app:destination="@id/mainFragment"
@@ -21,4 +21,5 @@
         android:name="com.smatworld.iniencrypt.MainFragment"
         android:label="Main Dashboard"
         tools:layout="@layout/fragment_main" />
+
 </navigation>

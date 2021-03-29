@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="java.util.List" />
+
+        <import type="com.smatworld.iniencrypt.models.Algorithm" />
+
+        <variable
+            name="algorithmList"
+            type="List&lt;Algorithm>" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/app_padding">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/dialog_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding"
+            android:text="@string/select_algorithm"
+            android:textAppearance="?attr/textAppearanceBody2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/alg_1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding"
+            android:text="@{algorithmList.get(0).algorithm}"
+            android:textAppearance="?attr/textAppearanceButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dialog_title"
+            tools:text="@string/aes" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/alg_2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding"
+            android:text="@{algorithmList.get(1).algorithm}"
+            android:textAppearance="?attr/textAppearanceButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/alg_1"
+            tools:text="@string/aes" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

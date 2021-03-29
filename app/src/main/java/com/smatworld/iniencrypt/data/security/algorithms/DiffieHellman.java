@@ -20,7 +20,7 @@ import javax.crypto.interfaces.DHPublicKey;
 import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import static com.smatworld.iniencrypt.data.security.utils.DataUtil.toHexString;
+import static com.smatworld.iniencrypt.data.security.utils.SecurityUtil.toHexString;
 
 public class DiffieHellman {
 

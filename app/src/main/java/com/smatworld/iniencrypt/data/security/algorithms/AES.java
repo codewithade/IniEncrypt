@@ -16,11 +16,16 @@ public class AES {
 
     private static final String ALGORITHM = "AES";
     private final String mTransformation = "AES/CBC/PKCS5Padding";
-    private final byte[] mKey;
+    private byte[] mKey;
+    private Key mSecretKey;
 
     // supports only key size of 16 bytes
     public AES(byte[] key) {
         mKey = key;
+    }
+
+    public AES(Key secretKey) {
+        mSecretKey = secretKey;
     }
 
     public InputStream encrypt(InputStream stream2encrypt) throws Exception {
@@ -81,6 +86,8 @@ public class AES {
     }
 
     private Key generateKey() {
+        if (mKey == null)
+            return mSecretKey;
         // returns the first 16 bytes of the passed key
         return new SecretKeySpec(mKey, 0, 16, ALGORITHM);
     }
