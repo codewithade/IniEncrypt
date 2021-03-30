@@ -206,7 +206,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     }
 
     private void startDecryption(String key) {
-        displayBottomDialog(String.format(Locale.getDefault(), "%s decryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_no_encryption_blue, false);
+        displayBottomDialog(String.format(Locale.getDefault(), "%s decryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_no_encryption_blue);
         final FileData fileData = mFileViewModel.getFileData().getValue();
         String encryptedFileName = "";
         if (Objects.requireNonNull(fileData).isImage())
@@ -239,7 +239,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     }
 
     private void startEncryption(String key) {
-        displayBottomDialog(String.format(Locale.getDefault(), "%s encryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_encryption_blue, false);
+        displayBottomDialog(String.format(Locale.getDefault(), "%s encryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_encryption_blue);
         final FileData fileData = mFileViewModel.getFileData().getValue();
         switch (mFileViewModel.getAlgorithm()) {
             case AES:
@@ -401,9 +401,9 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 .show();
     }
 
-    private void displayBottomDialog(String title, int resId, boolean isCancellable) {
+    private void displayBottomDialog(String title, int resId) {
         mBottomDialog = BottomDialog.newInstance(String.format(Locale.getDefault(), title, mFileViewModel.getAlgorithm().getAlgorithm()), resId);
-        mBottomDialog.setCancelable(isCancellable);
+        mBottomDialog.setCancelable(false);
         mBottomDialog.show(requireParentFragment().getParentFragmentManager(), title);
     }
 
