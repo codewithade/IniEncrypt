@@ -43,6 +43,7 @@ import com.smatworld.iniencrypt.models.TaskStatus;
 import com.smatworld.iniencrypt.presentation.FileViewModel;
 import com.smatworld.iniencrypt.utils.Constants;
 import com.smatworld.iniencrypt.utils.FileUtil;
+import com.smatworld.iniencrypt.utils.StringUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,8 +63,10 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     private Observer<TaskData<InputStream>> mEncryptObserver;
     private Observer<TaskData<InputStream>> mDecryptObserver;
     private Observer<TaskData<Key>> mDHKeyExchangeObserver;
+    private Observer<TaskData<InputStream>> mRSAKeyObserver;
     private LiveData<TaskData<InputStream>> mDecryptLiveData;
     private LiveData<TaskData<InputStream>> mEncryptLiveData;
+    private LiveData<TaskData<InputStream>> mRSALiveData;
     private LiveData<TaskData<Key>> mDHLiveData;
 
     public MainFragment() {
@@ -206,7 +209,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     }
 
     private void startDecryption(String key) {
-        displayBottomDialog(String.format(Locale.getDefault(), "%s decryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_no_encryption_blue);
+        showBottomDialog(String.format(Locale.getDefault(), "%s decryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_no_encryption_blue);
         final FileData fileData = mFileViewModel.getFileData().getValue();
         String encryptedFileName = "";
         if (Objects.requireNonNull(fileData).isImage())
@@ -224,9 +227,16 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
                 break;
             case RSA:
-                mDecryptLiveData = mFileViewModel.decryptRSA(SecurityUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), encryptedFileName)));
-                mDecryptObserver = decryptTaskObserver(fileData);
-                mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
+                final int keyLength = Integer.parseInt(key);
+                if (StringUtil.canUseRSA(Objects.requireNonNull(fileData).getFileSize(), keyLength)) {
+                    // file size is suitable for RSA
+                    mDecryptLiveData = mFileViewModel.decryptRSA(SecurityUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), encryptedFileName)));
+                    mDecryptObserver = decryptTaskObserver(fileData);
+                    mDecryptLiveData.observe(getViewLifecycleOwner(), mDecryptObserver);
+                } else if (FileUtil.fileExists(requireContext(), Constants.RSA_ENCRYPTED_KEY_FILE_NAME)) {
+                    // use the RSA-encrypted DH Secret Key to decrypt the data
+                    decryptDH(mFileViewModel.getSelectedSymmetricAlgorithm());
+                } else displaySnackBar("You have to encrypt with RSA first.");
                 break;
             case DIFFIE_HELLMAN:
                 if (fileData.isSecretKeyAvailable())
@@ -239,7 +249,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     }
 
     private void startEncryption(String key) {
-        displayBottomDialog(String.format(Locale.getDefault(), "%s encryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_encryption_blue);
+        showBottomDialog(String.format(Locale.getDefault(), "%s encryption in progress...", mFileViewModel.getAlgorithm().getAlgorithm()), R.drawable.ic_encryption_blue);
         final FileData fileData = mFileViewModel.getFileData().getValue();
         switch (mFileViewModel.getAlgorithm()) {
             case AES:
@@ -253,13 +263,24 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
                 break;
             case RSA:
-                mEncryptLiveData = mFileViewModel.encryptRSA(SecurityUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile()), Integer.parseInt(key));
-                mEncryptObserver = encryptTaskObserver(fileData);
-                mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
+                final int keyLength = Integer.parseInt(key);
+                if (StringUtil.canUseRSA(Objects.requireNonNull(fileData).getFileSize(), keyLength)) {
+                    // file size is suitable for RSA
+                    mEncryptLiveData = mFileViewModel.encryptRSA(SecurityUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile()), keyLength);
+                    mEncryptObserver = encryptTaskObserver(fileData);
+                    mEncryptLiveData.observe(getViewLifecycleOwner(), mEncryptObserver);
+                } else {
+                    // encrypt the DH-generated Secret Key with RSA and
+                    // use the RSA-encrypted key to encrypt the data
+                    mFileViewModel.setSelectedASymmetricAlgorithm(Algorithm.RSA);
+                    // show option to select a Symmetric Algorithm
+                    showAlgorithmSelectionDialog();
+                }
                 break;
             case DIFFIE_HELLMAN:
                 // show option to select a Symmetric Algorithm
-                displaySelectAlgorithmDialog();
+                mFileViewModel.setSelectedASymmetricAlgorithm(Algorithm.DIFFIE_HELLMAN);
+                showAlgorithmSelectionDialog();
                 break;
             default:
                 throw new IllegalArgumentException(getString(R.string.invalid_algorithm) + mFileViewModel.getAlgorithm());
@@ -275,7 +296,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 String encodedFile;
                 // save encrypted data to File
                 if (fileData.isImage()) {
-                    final String encryptedImageFileName = Constants.ENCRYPTED_IMAGE_FILE_NAME;
+                    String encryptedImageFileName = Constants.ENCRYPTED_IMAGE_FILE_NAME;
                     FileUtil.saveFileToStorage(requireContext(), encryptedStream, encryptedImageFileName);
                     encodedFile = FileUtil.getEncodedFile(FileUtil.getFile(requireContext(), encryptedImageFileName));
                     mBinding.encryptedTv.setText(encodedFile);
@@ -356,6 +377,9 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         if (mDHKeyExchangeObserver != null && mDHLiveData != null)
             if (mDHLiveData.hasActiveObservers())
                 mDHLiveData.removeObserver(mDHKeyExchangeObserver);
+        if (mRSAKeyObserver != null && mRSALiveData != null)
+            if (mRSALiveData.hasActiveObservers())
+                mRSALiveData.removeObserver(mRSAKeyObserver);
     }
 
     private void setState(ChipGroup chipGroup) {
@@ -396,18 +420,19 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                     mFileViewModel.setAlgorithmSelected(false);
                     mFileViewModel.setFileData(null);
                     mFileViewModel.setAlgorithm(null);
+                    // FIXME: 30/03/2021 delete cached files and files in FileDir
                 })
                 .setNegativeButton(R.string.dialog_no, (dialog, which) -> dialog.cancel())
                 .show();
     }
 
-    private void displayBottomDialog(String title, int resId) {
+    private void showBottomDialog(String title, int resId) {
         mBottomDialog = BottomDialog.newInstance(String.format(Locale.getDefault(), title, mFileViewModel.getAlgorithm().getAlgorithm()), resId);
         mBottomDialog.setCancelable(false);
         mBottomDialog.show(requireParentFragment().getParentFragmentManager(), title);
     }
 
-    private void displaySelectAlgorithmDialog() {
+    private void showAlgorithmSelectionDialog() {
         dismissBottomDialog();
         FragmentAlgorithmDialogBinding binding = FragmentAlgorithmDialogBinding.inflate(LayoutInflater.from(requireContext()));
         binding.setAlgorithmList(Arrays.asList(Algorithm.AES, Algorithm.TRIPLE_DES));
@@ -435,12 +460,15 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 displaySnackBar(keyTaskData.getSuccessMessage());
                 final Key key = keyTaskData.getData();
                 // save key to Storage
-                FileUtil.saveFileToStorage(requireContext(), key.getEncoded(), Constants.ENCRYPTED_KEY_FILE_NAME);
+                FileUtil.saveFileToStorage(requireContext(), key.getEncoded(), Constants.DH_ENCRYPTED_KEY_FILE_NAME);
                 // update ViewModel
                 Objects.requireNonNull(mFileViewModel.getFileData().getValue()).setSecretKeyAvailable(true);
                 mFileViewModel.setSelectedSymmetricAlgorithm(algorithm);
                 removeObservers();
-                encryptDH(algorithm);
+                // initiate with RSA
+                if (mFileViewModel.getSelectedASymmetricAlgorithm() == Algorithm.RSA)
+                    encryptRSA();
+                else encryptDH(algorithm);
             } else if (keyTaskData.getTaskStatus() == TaskStatus.FAILED) {
                 dismissBottomDialog();
                 displaySnackBar(keyTaskData.getErrorMessage());
@@ -451,11 +479,47 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         };
     }
 
-    private void encryptDH(Algorithm algorithm) {
+    private Observer<TaskData<InputStream>> getRSAKeyObserver() {
+        return taskData -> {
+            if (taskData.getTaskStatus() == TaskStatus.SUCCESS) {
+                dismissBottomDialog();
+                displaySnackBar(taskData.getSuccessMessage());
+                final InputStream encryptedStream = taskData.getData();
+                // save encrypted DH SecretKey to File
+                String encryptedFileName = Constants.RSA_ENCRYPTED_KEY_FILE_NAME;
+                FileUtil.saveFileToStorage(requireContext(), encryptedStream, encryptedFileName);
+                removeObservers();
+                // initiate encryption of data with the RSA-encrypted DH SecretKey
+                final Algorithm symmetricAlgorithm = mFileViewModel.getSelectedSymmetricAlgorithm();
+                final Key secretKeyFromFile = FileUtil.getSecretKeyFromFile(FileUtil.getFile(requireContext(), encryptedFileName), symmetricAlgorithm);
+                initSymmetricEncryption(symmetricAlgorithm, secretKeyFromFile);
+            } else if (taskData.getTaskStatus() == TaskStatus.FAILED) {
+                dismissBottomDialog();
+                displaySnackBar(taskData.getErrorMessage());
+                removeObservers();
+            }
+        };
+    }
+
+    // RSA encrypts DH SecretKey
+    private void encryptRSA() {
+        final FileData fileData = mFileViewModel.getFileData().getValue();
+        mRSALiveData = mFileViewModel.encryptRSA(SecurityUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), Constants.DH_ENCRYPTED_KEY_FILE_NAME)), Integer.parseInt(Objects.requireNonNull(fileData).getKey()));
+        mRSAKeyObserver = getRSAKeyObserver();
+        mRSALiveData.observe(getViewLifecycleOwner(), mRSAKeyObserver);
+    }
+
+    // initiate Encryption with DH
+    private void encryptDH(Algorithm symmetricAlgorithm) {
+        final Key secretKeyFromFile = FileUtil.getSecretKeyFromFile(FileUtil.getFile(requireContext(), Constants.DH_ENCRYPTED_KEY_FILE_NAME), symmetricAlgorithm);
+        initSymmetricEncryption(symmetricAlgorithm, secretKeyFromFile);
+
+    }
+
+    private void initSymmetricEncryption(Algorithm symmetricAlgorithm, Key secretKeyFromFile) {
         final FileData fileData = mFileViewModel.getFileData().getValue();
         final InputStream inputStreamFromFile = SecurityUtil.getInputStreamFromFile(Objects.requireNonNull(fileData).getFile());
-        final Key secretKeyFromFile = FileUtil.getSecretKeyFromFile(FileUtil.getFile(requireContext(), Constants.ENCRYPTED_KEY_FILE_NAME), algorithm);
-        switch (algorithm) {
+        switch (symmetricAlgorithm) {
             case AES:
                 mEncryptLiveData = mFileViewModel.encryptAES(inputStreamFromFile, secretKeyFromFile);
                 mEncryptObserver = encryptTaskObserver(fileData);
@@ -471,15 +535,19 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void decryptDH(Algorithm algorithm) {
+    private void decryptDH(Algorithm symmetricAlgorithm) {
         final FileData fileData = mFileViewModel.getFileData().getValue();
-        String encryptedFileName = "";
+        final String encryptedFileName;
+        final Key secretKeyFromFile;
         if (Objects.requireNonNull(fileData).isImage())
             encryptedFileName = Constants.ENCRYPTED_IMAGE_FILE_NAME;
         else encryptedFileName = Constants.ENCRYPTED_TEXT_FILE_NAME;
-        final Key secretKeyFromFile = FileUtil.getSecretKeyFromFile(FileUtil.getFile(requireContext(), Constants.ENCRYPTED_KEY_FILE_NAME), algorithm);
         final InputStream inputStreamFromFile = SecurityUtil.getInputStreamFromFile(FileUtil.getFile(requireContext(), encryptedFileName));
-        switch (algorithm) {
+        if (mFileViewModel.getSelectedASymmetricAlgorithm() == Algorithm.RSA)
+            secretKeyFromFile = FileUtil.getSecretKeyFromFile(FileUtil.getFile(requireContext(), Constants.RSA_ENCRYPTED_KEY_FILE_NAME), symmetricAlgorithm);
+        else
+            secretKeyFromFile = FileUtil.getSecretKeyFromFile(FileUtil.getFile(requireContext(), Constants.DH_ENCRYPTED_KEY_FILE_NAME), symmetricAlgorithm);
+        switch (symmetricAlgorithm) {
             case AES:
                 mDecryptLiveData = mFileViewModel.decryptAES(inputStreamFromFile, secretKeyFromFile);
                 mDecryptObserver = decryptTaskObserver(fileData);
@@ -493,6 +561,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
             default:
                 throw new IllegalArgumentException(getString(R.string.invalid_algorithm) + mFileViewModel.getAlgorithm());
         }
+
     }
 
     private void displayInputDialog() {

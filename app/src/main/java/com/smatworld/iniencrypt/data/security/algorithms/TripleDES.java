@@ -55,7 +55,7 @@ public class TripleDES {
 
     private Key generateKey() {
         if (mKey == null)
-            return mSecretKey;
+            return new SecretKeySpec(mSecretKey.getEncoded(), 0, 16, ALGORITHM);
         if (mKey.length <= 16)
             // returns the first 16 bytes of the passed key
             return new SecretKeySpec(mKey, 0, 16, ALGORITHM);

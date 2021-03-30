@@ -1,6 +1,10 @@
 package com.smatworld.iniencrypt.utils;
 
+import android.util.Log;
+
 import java.util.Locale;
+
+import static com.smatworld.iniencrypt.utils.Constants.TAG;
 
 public class StringUtil {
     private StringUtil() {
@@ -24,5 +28,11 @@ public class StringUtil {
 
         else throw new IllegalArgumentException("Invalid argument passed: " + fileSize);
         return result.toString();
+    }
+
+    public static boolean canUseRSA(long fileSize, int keyLength) {
+        int maxRSAFileSize = (keyLength / 8) - 11;
+        Log.i(TAG, "canUseRSA: maxRSAFileSize: " + maxRSAFileSize);
+        return fileSize <= maxRSAFileSize;
     }
 }

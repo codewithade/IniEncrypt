@@ -9,7 +9,7 @@ public class Constants {
     public static final int TRIPLE_DES_MAX_KEY_SIZE = 24;
     public static final int DH_MAX_KEY_SIZE = 2048;
     public static final int DH_MIN_KEY_SIZE = 512;
-    public static final int RSA_MIN_KEY_SIZE = 1024;
+    public static final int RSA_MIN_KEY_SIZE = 512;
     public static final int RSA_MAX_KEY_SIZE = 65536;
 
     // File Name Constants
@@ -17,7 +17,8 @@ public class Constants {
     public static final String DECRYPTED_TEXT_FILE_NAME = "decryptedText";
     public static final String ENCRYPTED_IMAGE_FILE_NAME = "cryptImage.bin";
     public static final String DECRYPTED_IMAGE_FILE_NAME = "decryptedImage";
-    public static final String ENCRYPTED_KEY_FILE_NAME = "secretKey.bin";
+    public static final String DH_ENCRYPTED_KEY_FILE_NAME = "DHSecretKey.bin";
+    public static final String RSA_ENCRYPTED_KEY_FILE_NAME = "RSASecretKey.bin";
 
     // remove
     public static final String PLAIN_IMAGE_NAME = "plainImage";

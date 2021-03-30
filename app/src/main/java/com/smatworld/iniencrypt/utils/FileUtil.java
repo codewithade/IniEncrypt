@@ -187,6 +187,10 @@ public class FileUtil {
         return new File(context.getFilesDir(), fileName);
     }
 
+    public static boolean fileExists(Context context, String fileName) {
+        return FileUtil.getFile(context, fileName).exists();
+    }
+
     // returns the file extension of a File (e.g. .jpg .txt)
     public static String getFileExtension(String fileName) {
         return fileName.trim().substring(fileName.indexOf('.'));

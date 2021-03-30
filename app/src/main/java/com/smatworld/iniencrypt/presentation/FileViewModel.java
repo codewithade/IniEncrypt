@@ -20,6 +20,7 @@ public class FileViewModel extends ViewModel {
     private final MutableLiveData<FileData> mFileData = new MutableLiveData<>();
     private Algorithm mAlgorithm;
     private Algorithm mSelectedSymmetricAlgorithm;
+    private Algorithm mSelectedASymmetricAlgorithm;
     private final FileTask mFileTask;
     private PrivateKey mPrivateKey;
     private PublicKey mPublicKey;
@@ -113,5 +114,13 @@ public class FileViewModel extends ViewModel {
 
     public void setSelectedSymmetricAlgorithm(Algorithm selectedSymmetricAlgorithm) {
         mSelectedSymmetricAlgorithm = selectedSymmetricAlgorithm;
+    }
+
+    public Algorithm getSelectedASymmetricAlgorithm() {
+        return mSelectedASymmetricAlgorithm;
+    }
+
+    public void setSelectedASymmetricAlgorithm(Algorithm selectedASymmetricAlgorithm) {
+        mSelectedASymmetricAlgorithm = selectedASymmetricAlgorithm;
     }
 }

@@ -34,12 +34,12 @@ public class FileLocalData implements FileRepo {
             taskData.setStartTime(System.nanoTime());
             final InputStream encryptedData = aes.encrypt(inputStream);
             taskData.setData(encryptedData);
-            taskData.setSuccessMessage("Encryption successful!");
+            taskData.setSuccessMessage("AES Encryption successful!");
             taskData.setTaskStatus(TaskStatus.SUCCESS);
             taskData.setEndTime(System.nanoTime());
             mCipherLiveData.setValue(taskData);
         } catch (Exception e) {
-            processErrorResponse(taskData, e, "Encryption Failed.");
+            processErrorResponse(taskData, e, "AES Encryption Failed.");
         }
         return mCipherLiveData;
     }
@@ -52,12 +52,12 @@ public class FileLocalData implements FileRepo {
             taskData.setStartTime(System.nanoTime());
             final InputStream encryptedData = aes.encrypt(inputStream);
             taskData.setData(encryptedData);
-            taskData.setSuccessMessage("Encryption successful!");
+            taskData.setSuccessMessage("AES Encryption successful!");
             taskData.setTaskStatus(TaskStatus.SUCCESS);
             taskData.setEndTime(System.nanoTime());
             mCipherLiveData.setValue(taskData);
         } catch (Exception e) {
-            processErrorResponse(taskData, e, "Encryption Failed.");
+            processErrorResponse(taskData, e, "AES Encryption Failed.");
         }
         return mCipherLiveData;
     }
@@ -70,12 +70,12 @@ public class FileLocalData implements FileRepo {
             taskData.setStartTime(System.nanoTime());
             final InputStream decryptedData = aes.decrypt(inputStream);
             taskData.setData(decryptedData);
-            taskData.setSuccessMessage("Decryption successful!");
+            taskData.setSuccessMessage("AES Decryption successful!");
             taskData.setTaskStatus(TaskStatus.SUCCESS);
             taskData.setEndTime(System.nanoTime());
             mCipherLiveData.setValue(taskData);
         } catch (Exception e) {
-            processErrorResponse(taskData, e, "Decryption failed.");
+            processErrorResponse(taskData, e, "AES Decryption failed.");
         }
         return mCipherLiveData;
     }
@@ -88,12 +88,12 @@ public class FileLocalData implements FileRepo {
             taskData.setStartTime(System.nanoTime());
             final InputStream decryptedData = aes.decrypt(inputStream);
             taskData.setData(decryptedData);
-            taskData.setSuccessMessage("Decryption successful!");
+            taskData.setSuccessMessage("AES Decryption successful!");
             taskData.setTaskStatus(TaskStatus.SUCCESS);
             taskData.setEndTime(System.nanoTime());
             mCipherLiveData.setValue(taskData);
         } catch (Exception e) {
-            processErrorResponse(taskData, e, "Decryption failed.");
+            processErrorResponse(taskData, e, "AES Decryption failed.");
         }
         return mCipherLiveData;
     }
@@ -106,12 +106,12 @@ public class FileLocalData implements FileRepo {
             taskData.setStartTime(System.nanoTime());
             final InputStream encryptedData = tripleDES.encrypt(inputStream);
             taskData.setData(encryptedData);
-            taskData.setSuccessMessage("Encryption successful!");
+            taskData.setSuccessMessage("TripleDES Encryption successful!");
             taskData.setTaskStatus(TaskStatus.SUCCESS);
             taskData.setEndTime(System.nanoTime());
             mCipherLiveData.setValue(taskData);
         } catch (Exception e) {
-            processErrorResponse(taskData, e, "Encryption Failed.");
+            processErrorResponse(taskData, e, "TripleDES Encryption Failed.");
         }
         return mCipherLiveData;
     }
@@ -124,12 +124,12 @@ public class FileLocalData implements FileRepo {
             taskData.setStartTime(System.nanoTime());
             final InputStream encryptedData = tripleDES.encrypt(inputStream);
             taskData.setData(encryptedData);
-            taskData.setSuccessMessage("Encryption successful!");
+            taskData.setSuccessMessage("TripleDES Encryption successful!");
             taskData.setTaskStatus(TaskStatus.SUCCESS);
             taskData.setEndTime(System.nanoTime());
             mCipherLiveData.setValue(taskData);
         } catch (Exception e) {
-            processErrorResponse(taskData, e, "Encryption Failed.");
+            processErrorResponse(taskData, e, "TripleDES Encryption Failed.");
         }
         return mCipherLiveData;
     }
@@ -142,12 +142,12 @@ public class FileLocalData implements FileRepo {
             taskData.setStartTime(System.nanoTime());
             final InputStream decryptedData = tripleDES.decrypt(inputStream);
             taskData.setData(decryptedData);
-            taskData.setSuccessMessage("Decryption successful!");
+            taskData.setSuccessMessage("TripleDES Decryption successful!");
             taskData.setTaskStatus(TaskStatus.SUCCESS);
             taskData.setEndTime(System.nanoTime());
             mCipherLiveData.setValue(taskData);
         } catch (Exception e) {
-            processErrorResponse(taskData, e, "Decryption failed.");
+            processErrorResponse(taskData, e, "TripleDES Decryption failed.");
         }
         return mCipherLiveData;
     }
@@ -160,12 +160,12 @@ public class FileLocalData implements FileRepo {
             taskData.setStartTime(System.nanoTime());
             final InputStream decryptedData = tripleDES.decrypt(inputStream);
             taskData.setData(decryptedData);
-            taskData.setSuccessMessage("Decryption successful!");
+            taskData.setSuccessMessage("TripleDES Decryption successful!");
             taskData.setTaskStatus(TaskStatus.SUCCESS);
             taskData.setEndTime(System.nanoTime());
             mCipherLiveData.setValue(taskData);
         } catch (Exception e) {
-            processErrorResponse(taskData, e, "Decryption failed.");
+            processErrorResponse(taskData, e, "TripleDES Decryption failed.");
         }
         return mCipherLiveData;
     }
@@ -178,12 +178,12 @@ public class FileLocalData implements FileRepo {
             taskData.setStartTime(System.nanoTime());
             final InputStream encryptedData = rsa.encrypt(inputStream);
             taskData.setData(encryptedData);
-            taskData.setSuccessMessage("Encryption successful!");
+            taskData.setSuccessMessage("RSA Encryption successful!");
             taskData.setTaskStatus(TaskStatus.SUCCESS);
             taskData.setEndTime(System.nanoTime());
             mCipherLiveData.setValue(taskData);
         } catch (Exception e) {
-            processErrorResponse(taskData, e, "Encryption failed.");
+            processErrorResponse(taskData, e, "RSA Encryption failed.");
         }
         return mCipherLiveData;
     }
@@ -196,7 +196,7 @@ public class FileLocalData implements FileRepo {
             taskData.setStartTime(System.nanoTime());
             final InputStream decryptedData = rsa.decrypt(inputStream);
             taskData.setData(decryptedData);
-            taskData.setSuccessMessage("Decryption successful!");
+            taskData.setSuccessMessage("RSA Decryption successful!");
             taskData.setTaskStatus(TaskStatus.SUCCESS);
             taskData.setEndTime(System.nanoTime());
             mCipherLiveData.setValue(taskData);

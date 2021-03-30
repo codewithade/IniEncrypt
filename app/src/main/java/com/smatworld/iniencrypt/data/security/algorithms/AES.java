@@ -86,8 +86,7 @@ public class AES {
     }
 
     private Key generateKey() {
-        if (mKey == null)
-            return mSecretKey;
+        if (mKey == null) return new SecretKeySpec(mSecretKey.getEncoded(), 0, 16, ALGORITHM);
         // returns the first 16 bytes of the passed key
         return new SecretKeySpec(mKey, 0, 16, ALGORITHM);
     }
