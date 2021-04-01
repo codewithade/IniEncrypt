@@ -13,10 +13,10 @@ Cryptographic Algorithms can be:
 2. Asymmetric Algorithm (e.g. RSA and DiffieHellman)
 
 ### Symmetric Algorithm 
-Symmetric ALgorithm are cryptographic algorithms that use a single key to either encrypt or decrypt data. This means both parties (Bob and Alice) share a single secret key. AES has a key size length of 16bytes while TripleDES cabn support both 16-bytes and 24-bytes key sizes.
+Symmetric Algorithm are cryptographic algorithms that use a single key to either encrypt or decrypt data. This means both parties (Bob and Alice) share a single secret key. AES has a key size length of 16-bytes while TripleDES can support both 16-bytes and 24-bytes key sizes.
 
 ### Asymmetric Algorithm
-Asymmetric Algorithms are cryptographic algorithms that require the use of a key pair i.e. two keys (PrivateKey and PublicKey) are required. When two parties (Bob and Alice) want to communicate, The followwing processes happens: 
+Asymmetric Algorithms are cryptographic algorithms that require the use of a key pair i.e. two keys (PrivateKey and PublicKey) are required. When two parties (Bob and Alice) want to communicate, The following processes happens: 
 1. The sender(Alice) generates a *Public and Private Key* pair. 
 2. Alice then encodes her *Public Key* and sends it to the receiver(Bob). 
 3. Bob generates his own *Public and Private Key* pair and sends his encoded *Public Key* it over to Alice. 
@@ -26,7 +26,9 @@ Asymmetric Algorithms are cryptographic algorithms that require the use of a key
 
 * RSA accepts key sizes between 512 and 65536 bytes (in multiples of 64 bytes). RSA can only encrypt data with a maximum size of ((keySize/8)-11) i.e. for example, if a keySize of 1024 is used, it can only encrypt data with a maximum size of ((1024/8)-11) = 117 bytes
 
-* Diffie Hellman is a Key Exchange algorithm and accepts key sizes between 512 and 2048 bytes (in multiples of 64 bytes). A Shared Secret Key is generated at the end of the Key Exchange process between the communicating parties (Bob and Alice). The size of the Shared Secret Key is dependent on the size of the cryptographic Key used. If a key size of 512 is used, a Shared Secret Key of 64 bytes would be generated. The Shared Secret Key is used to encrypt/decrypt data being sent or received to/from both parties (Bob and Alice).
+* Diffie Hellman is a Key Exchange algorithm and accepts key sizes between 512 and 2048 bytes (in multiples of 64 bytes). The DH Key Exchange Process:
+1. The sender (Alice) starts the DH Key exchange process by 
+A Shared Secret Key is generated at the end of the Key Exchange process between the communicating parties (Bob and Alice). The size of the Shared Secret Key is dependent on the size of the cryptographic Key used. If a key size of 512 is used, a Shared Secret Key of 64 bytes would be generated. The Shared Secret Key is used to encrypt/decrypt data being sent or received to/from both parties (Bob and Alice).
 
 ## Screenshots
 ![launch](https://user-images.githubusercontent.com/65837990/113030360-68cee700-9185-11eb-8b12-51f99070d3cd.png)
@@ -34,5 +36,11 @@ Asymmetric Algorithms are cryptographic algorithms that require the use of a key
 ![portrait](https://user-images.githubusercontent.com/65837990/111162720-b69bfa80-859c-11eb-8c00-d289e071daa0.png)
 
 ![land](https://user-images.githubusercontent.com/65837990/111162712-b4d23700-859c-11eb-83d5-b2256595be58.png)
+
+
+## References
+1. https://docs.oracle.com/javase/9/security/java-cryptography-architecture-jca-reference-guide.htm
+2. https://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html 
+
 
 
