@@ -27,8 +27,15 @@ Asymmetric Algorithms are cryptographic algorithms that require the use of a key
 * RSA accepts key sizes between 512 and 65536 bytes (in multiples of 64 bytes). RSA can only encrypt data with a maximum size of ((keySize/8)-11) i.e. for example, if a keySize of 1024 is used, it can only encrypt data with a maximum size of ((1024/8)-11) = 117 bytes
 
 * Diffie Hellman is a Key Exchange algorithm and accepts key sizes between 512 and 2048 bytes (in multiples of 64 bytes). The DH Key Exchange Process:
-1. The sender (Alice) starts the DH Key exchange process by 
-A Shared Secret Key is generated at the end of the Key Exchange process between the communicating parties (Bob and Alice). The size of the Shared Secret Key is dependent on the size of the cryptographic Key used. If a key size of 512 is used, a Shared Secret Key of 64 bytes would be generated. The Shared Secret Key is used to encrypt/decrypt data being sent or received to/from both parties (Bob and Alice).
+1. The sender (Alice) starts the DH Key exchange process by generating a *Private and Public Key* pair with a specified Key size.
+2. Alice encodes her _*Public Key*_ and sends it to the receiver (Bob).
+3. Bob receives Alice's encoded Public Key and generates his own _*Public and Private Key*_ pair using the parameters encoded in Alice's Public Key.
+4. Bob encodes his _*Public Key*_ and sends it over to Alice.
+5. Alice uses Bob's encoded _*Public Key*_ to initiate her own first phase of the DH protocol.
+6. Bob also uses Alice's _*Public Key*_ to initiate his own first phase of the DH protocol.
+7. Both Bob and Alice generates a _*Shared Secret Key*_ (The keys generated at both ends must tally).
+8. The size of the Shared Secret Key is dependent on the size of the cryptographic Key used. If a key size of 512 is used, a Shared Secret Key of 64 bytes would be generated.
+9. The Shared Secret Key is used to encrypt/decrypt data being sent or received to/from both parties (Bob and Alice).
 
 ## Screenshots
 ![launch](https://user-images.githubusercontent.com/65837990/113030360-68cee700-9185-11eb-8b12-51f99070d3cd.png)
