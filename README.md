@@ -1,5 +1,5 @@
 # IniEncrypt
-The goal of IniEncrypt is to test the efficiency and the applicability of both symmetric and asymmetric cryptographic algorithms when encrypting/decrypting text and images.
+The goal of IniEncrypt is to test the efficacy and the applicability of both symmetric and asymmetric cryptographic algorithms when encrypting/decrypting text and images.
 
 Algorithms being considered include:
 1. Diffie-Hellman
