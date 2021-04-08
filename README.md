@@ -19,7 +19,7 @@ Symmetric Algorithm are cryptographic algorithms that use a single key to either
 Asymmetric Algorithms are cryptographic algorithms that require the use of a key pair i.e. two keys (PrivateKey and PublicKey) are required. When two parties (Bob and Alice) want to communicate, The following processes happens: 
 1. The sender(Alice) generates a *Public and Private Key* pair. 
 2. Alice then encodes her *Public Key* and sends it to the receiver(Bob). 
-3. Bob generates his own *Public and Private Key* pair and sends his encoded *Public Key* it over to Alice. 
+3. Bob generates his own *Public and Private Key* pair and sends his encoded *Public Key* over to Alice. 
 4. This marks the end of the key sharing process. 
 5. To transmit data between both parties, Alice, for example, encrypts her message (data) with *Bob's Public Key* and sends it to Bob. 
 6. Bob receives the encrypted message from Alice and decrypts it with his *Private Key*.
